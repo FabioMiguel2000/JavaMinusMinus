@@ -120,33 +120,32 @@ Type :
 ;
 
 Statement :
-
-
 	( <OPEN_CURLY_BRACKET> (Statement)* <CLOSE_CURLY_BRACKET> ) |
 	( <IF> <OPEN_PAREN> Expression <CLOSE_PAREN> Statement <ELSE> Statement ) |
 	( <WHILE> <OPEN_PAREN> Expression <CLOSE_PAREN> Statement ) |
 	( Expression <SEMICOLON> ) |
 	( <IDENTIFIER> <EQUALS> Expression <SEMICOLON>  ) |
 	( <IDENTIFIER> <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET> <EQUALS> Expression <SEMICOLON>  )
-
 ;
 
+
 Expression :
-
-		(Expression ((<AND_OP> | <LESS_THAN> | <PLUS> | <MINUS> | <TIMES> | <DIVIDE>) Expression)?)  |
-		(Expression <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>) |
-		(Expression <DOT> <LENGTH>) |
-		(Expression <DOT> <IDENTIFIER> <OPEN_PAREN> (Expression (<COMMA> Expression)*)?) <CLOSE_PAREN>|
-		(<INTEGER>) |
-		(<TRUE>) |
-		(<FALSE>) |
-		(<IDENTIFIER>) |
-		(<THIS>) |
-		(<NEW> <TYPE_INT> <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>) |
-		(<NEW> <IDENTIFIER> <OPEN_PAREN> <CLOSE_PAREN>) |
-		(<NOT_OP> Expression) |
-		(<OPEN_PAREN> Expression <CLOSE_PAREN>)
-
+	/*
+	(Expression ((<AND_OP> | <LESS_THAN> | <PLUS> | <MINUS> | <TIMES> | <DIVIDE>) Expression)?)  |
+	(Expression <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>) | 
+	(Expression <DOT> <LENGTH>) |
+	(Expression <DOT> <IDENTIFIER> <OPEN_PAREN> (Expression (<COMMA> Expression)*)?) <CLOSE_PAREN>|
+	(<INTEGER>) |
+	(<TRUE>) |
+	(<FALSE>) |
+	(<IDENTIFIER>) |
+	(<THIS>) |
+	(<NEW> <TYPE_INT> <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>) |
+	(<NEW> <IDENTIFIER> <OPEN_PAREN> <CLOSE_PAREN>) |
+	(<NOT_OP> Expression) |
+	(<OPEN_PAREN> Expression <CLOSE_PAREN>)
+	*/
+	AndExpression
 ;
 
 AndExpression:
@@ -154,7 +153,7 @@ AndExpression:
 ;
 
 LessThanExpression:
-	PlusExpression (<LESS_THAN> PlusExpression)?
+	AdditiveExpression (<LESS_THAN> AdditiveExpression)?
 ;
 
 AdditiveExpression:
@@ -165,7 +164,6 @@ AdditiveExpression:
 	)?
 ;
 
-
 MultiplicativeExpression:
 	NotExpression
 	(
@@ -175,48 +173,43 @@ MultiplicativeExpression:
 ;
 
 NotExpression:
-	DotExpression | (<NOT_OP> DotExpression)
+	<NOT_OP> NotExpression | TerminalExpression
 ;
 
-DotExpression:
-	(ArrayExpression <DOT> <LENGTH>) |
-	()
+TerminalExpression:
+	Factor (ArrayExpression | DotExpression)?
 ;
 
 ArrayExpression:
-
+	<OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>
 ;
 
-Terminals:
+DotExpression:
+	<DOT>
+	(
+		<LENGTH> | (<IDENTIFIER> <OPEN_PAREN> (Expression (<COMMA> Expression)*)? <CLOSE_PAREN>)
+	)
+;
+
+Factor:
+	Literals |
+	(<OPEN_PAREN> Expression <CLOSE_PAREN>) |
+	NewExpression
+;
+
+Literals:
 	(<INTEGER>) |
 	(<TRUE>) |
 	(<FALSE>) |
 	(<IDENTIFIER>) |
-	(<THIS>) |
+	(<THIS>) 
 ;
 
-
-
-
-/*
-PlusExpression:
-	MinusExpression (<PLUS> MinusExpression)?
+NewExpression:
+	<NEW>
+	(
+		<TYPE_INT> <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET> |
+		<IDENTIFIER> <OPEN_PAREN> <CLOSE_PAREN>
+	)
 ;
-
-
-MinusExpression:
-	TimesExpression (<MINUS> TimesExpression)?
-;
-
-
-TimesExpression:
-	DivideExpression (<Times> DivideExpression)?
-;
-
-
-DivideExpression:
-	NotExpression (<DivideExpression> NotExpression)?
-;*/
-
-
 
