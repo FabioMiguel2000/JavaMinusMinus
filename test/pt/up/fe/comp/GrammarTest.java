@@ -18,7 +18,7 @@ import org.junit.Test;
 public class GrammarTest {
 
     private static final String IMPORT = "ImportDeclaration";
-    private static final String MAIN_METHOD = "Program";
+    private static final String MAIN_METHOD = "MethodDeclaration";
     private static final String INSTANCE_METHOD = "MethodDeclaration";
     private static final String STATEMENT = "Statement";
     private static final String EXPRESSION = "Expression";
@@ -65,7 +65,7 @@ public class GrammarTest {
 
     @Test
     public void testVarDeclString() {
-        noErrors("String aString;", "VarDecl");
+        noErrors("String aString;", "VarDeclaration");
     }
 
     @Test
