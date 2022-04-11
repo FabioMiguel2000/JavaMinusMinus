@@ -1,6 +1,7 @@
 PARSER_PACKAGE=pt.up.fe.comp;
 PARSER_CLASS=JmmGrammarParser;
 SMART_NODE_CREATION=false;
+TOKENS_ARE_NODES = false;
 
 SKIP : " " | "\t" | "\r" | "\n";
 
@@ -12,7 +13,6 @@ TOKEN :
 	< DIGIT : (["0" - "9"]) > |
 	< INTEGER : <DIGIT> (<DIGIT>)* > |
 
-	
 	< OPEN_PAREN : "(" > |
 	< CLOSE_PAREN : ")" > |
 	< OPEN_CURLY_BRACKET : "{"> |
@@ -29,7 +29,7 @@ TOKEN :
 	< MORE_THAN : ">" > |
 	< NOT_OP : "!" > |
 
-	< IDENTIFIER: (<LETTER> | <UNDERSCORE>) (<LETTER> | <UNDERSCORE> | <DIGIT>)* > |
+	< IDENTIFIER: ["a"-"z", "A"-"Z", "$", "_"](["a"-"z", "A"-"Z", "0"-"9", "$", "_"])*> |
 	< LETTER : ( <LOWER_CASE> | <UPPER_CASE> ) > |
 	< LOWER_CASE: ["a"-"z"] > | 
     < UPPER_CASE: ["A"-"Z"] > | 
@@ -58,45 +58,20 @@ TOKEN :
 	< THIS : "this" > |
 	< LENGTH : "length" >
 ;
-/*
-Start : AdditiveExpression <EOF> ;
 
-AdditiveExpression :
-	MultiplicativeExpression
-	(
-		(< PLUS > | < MINUS >)
-		MultiplicativeExpression
-	)?
-;
-
-MultiplicativeExpression :
-	Factor
-	(
-		(< TIMES > | < DIVIDE >)
-		Factor
-	)?
-;
-
-Factor :
-	< INTEGER > |
-	< MINUS> Factor |
-	< OPEN_PAREN > AdditiveExpression < CLOSE_PAREN >
-;
-*/
 Program :
-
-	(ImportDeclaration)* ClassDeclaration < EOF >
-
+	(ImportDeclaration)* ClassDeclaration <EOF>
 ;
 
-ImportDeclaration :
-	(< IMPORT > < IDENTIFIER > (< DOT > < IDENTIFIER >)* <SEMICOLON>)
-
+ImportDeclaration:
+	<IMPORT> <IDENTIFIER> (ImportDotDeclation)* <SEMICOLON>
+;
+ImportDotDeclation:
+	<DOT> <IDENTIFIER> 
 ;
 
 ClassDeclaration :
 	(< CLASS > < IDENTIFIER > (< EXTENDS > < IDENTIFIER >)? < OPEN_CURLY_BRACKET > (VarDeclaration)* (MethodDeclaration)* < CLOSE_CURLY_BRACKET >)
-	
 ;
 
 
@@ -146,14 +121,15 @@ Expression :
 	(<OPEN_PAREN> Expression <CLOSE_PAREN>)
 	*/
 	AndExpression
+
 ;
 
 AndExpression:
-	LessThanExpression (<AND_OP> LessThanExpression)?
+	LessThanExpression (<AND_OP> LessThanExpression)*
 ;
 
 LessThanExpression:
-	AdditiveExpression (<LESS_THAN> AdditiveExpression)?
+	AdditiveExpression (<LESS_THAN> AdditiveExpression)*
 ;
 
 AdditiveExpression:
@@ -161,7 +137,7 @@ AdditiveExpression:
 	(
 		(<PLUS> | <MINUS>)
 		MultiplicativeExpression
-	)?
+	)*
 ;
 
 MultiplicativeExpression:
@@ -169,7 +145,7 @@ MultiplicativeExpression:
 	(
 		(<DIVIDE> | <TIMES>)
 		NotExpression
-	)?
+	)*
 ;
 
 NotExpression:
@@ -177,24 +153,27 @@ NotExpression:
 ;
 
 TerminalExpression:
-	Factor (ArrayExpression | DotExpression)?
+	Factor (ArrayAccessExpression | MemberAcessExpression)*
 ;
 
-ArrayExpression:
+ArrayAccessExpression:
 	<OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>
 ;
 
-DotExpression:
+MemberAcessExpression:
 	<DOT>
 	(
-		<LENGTH> | (<IDENTIFIER> <OPEN_PAREN> (Expression (<COMMA> Expression)*)? <CLOSE_PAREN>)
+		<LENGTH> | (<IDENTIFIER> <OPEN_PAREN> (Temp)? <CLOSE_PAREN>)
 	)
+;
+Temp:
+	Expression (<COMMA> Expression)*
 ;
 
 Factor:
 	Literals |
 	(<OPEN_PAREN> Expression <CLOSE_PAREN>) |
-	NewExpression
+	ObjectCreationExpression
 ;
 
 Literals:
@@ -203,9 +182,10 @@ Literals:
 	(<FALSE>) |
 	(<IDENTIFIER>) |
 	(<THIS>) 
+	
 ;
 
-NewExpression:
+ObjectCreationExpression:
 	<NEW>
 	(
 		<TYPE_INT> <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET> |
@@ -213,3 +193,28 @@ NewExpression:
 	)
 ;
 
+INJECT BaseNode :
+		import pt.up.fe.comp.jmm.ast.JmmNode;
+		import pt.up.fe.comp.jmm.ast.AJmmNode;
+		import pt.up.fe.specs.util.SpecsCollections;
+		extends AJmmNode
+{
+    @Override
+    public List<JmmNode> getChildren() {
+
+        return SpecsCollections.cast(children(), JmmNode.class);
+    }
+
+    @Override
+    public void add(JmmNode child, int index) {
+
+        if (child instanceof Node) {
+
+            addChild(index, (Node) child);
+        } else {
+
+            throw new RuntimeException("Node " + child + " is not a Node.");
+        }
+
+    }
+}

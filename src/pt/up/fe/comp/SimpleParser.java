@@ -10,6 +10,7 @@ import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
 import pt.up.fe.specs.util.SpecsIo;
+import pt.up.fe.specs.util.SpecsSystem;
 
 /**
  * Copyright 2022 SPeCS.
@@ -28,11 +29,17 @@ public class SimpleParser implements JmmParser {
 
     @Override
     public JmmParserResult parse(String jmmCode, Map<String, String> config) {
+        return parse(jmmCode, "Program", config);
+    }
+
+    @Override
+    public JmmParserResult parse(String jmmCode, String startingNode, Map<String, String> config) {
 
         try {
 
             JmmGrammarParser parser = new JmmGrammarParser(SpecsIo.toInputStream(jmmCode));
-            parser.Program();
+            // parser.Program();
+            SpecsSystem.invoke(parser, startingNode);
 
             Node root = parser.rootNode();
             root.dump("");
@@ -48,4 +55,30 @@ public class SimpleParser implements JmmParser {
             return JmmParserResult.newError(Report.newError(Stage.SYNTATIC, -1, -1, "Exception during parsing", e));
         }
     }
+
+
+    // @Override
+    // public JmmParserResult parse(String jmmCode, Map<String, String> config) {
+
+    //     try {
+
+    //         JmmGrammarParser parser = new JmmGrammarParser(SpecsIo.toInputStream(jmmCode));
+    //         // parser.Program();
+    //         SpecsSystem.invoke(parser, "Program");
+
+    //         Node root = parser.rootNode();
+    //         root.dump("");
+
+    //         if (!(root instanceof JmmNode)) {
+    //             return JmmParserResult.newError(new Report(ReportType.WARNING, Stage.SYNTATIC, -1,
+    //                     "JmmNode interface not yet implemented, returning null root node"));
+    //         }
+
+    //         return new JmmParserResult((JmmNode) root, Collections.emptyList(), config);
+
+    //     } catch (Exception e) {
+    //         return JmmParserResult.newError(Report.newError(Stage.SYNTATIC, -1, -1, "Exception during parsing", e));
+    //     }
+    // }
+
 }
