@@ -10,8 +10,8 @@ TOKEN :
 	< MINUS : "-" > |
 	< TIMES : "*" > |
 	< DIVIDE : "/" > |
-	< DIGIT : (["0" - "9"]) > |
 	< INTEGER : <DIGIT> (<DIGIT>)* > |
+	< DIGIT : (["0" - "9"]) > |
 
 	< OPEN_PAREN : "(" > |
 	< CLOSE_PAREN : ")" > |
