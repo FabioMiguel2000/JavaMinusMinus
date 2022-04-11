@@ -68,27 +68,40 @@ ImportDotDeclation:
 ;
 
 ClassDeclaration :
-	(< CLASS > < IDENTIFIER > (< EXTENDS > < IDENTIFIER >)? < OPEN_CURLY_BRACKET > (VarDeclaration)* (MethodDeclaration)* < CLOSE_CURLY_BRACKET >)
+	(<CLASS> <IDENTIFIER> (<EXTENDS> <IDENTIFIER>)? <OPEN_CURLY_BRACKET> (VarDeclaration)* (MethodDeclaration)* <CLOSE_CURLY_BRACKET>)
 ;
-
 
 VarDeclaration :
  	( Type <IDENTIFIER> <SEMICOLON>  )
 ;	
 
 MethodDeclaration :
-	(< PUBLIC > Type <IDENTIFIER> <OPEN_PAREN> (Type <IDENTIFIER> ( <COMMA> Type <IDENTIFIER> )*)? 
-	<CLOSE_PAREN> <OPEN_CURLY_BRACKET> (VarDeclaration)? (Statement)? <RETURN> Expression <SEMICOLON> <CLOSE_CURLY_BRACKET>
-	| <PUBLIC> <STATIC> <VOID> <MAIN> <OPEN_PAREN> <TYPE_STRING> <OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET> 
-	<IDENTIFIER> <CLOSE_PAREN> <OPEN_CURLY_BRACKET> (VarDeclaration)* (Statement)* <CLOSE_CURLY_BRACKET>)
-
+	<PUBLIC>
+	(SCAN 2 
+	Type <IDENTIFIER> <OPEN_PAREN> 
+		(Type <IDENTIFIER> ( <COMMA> Type <IDENTIFIER> )*)? 
+	<CLOSE_PAREN> 
+	<OPEN_CURLY_BRACKET> 
+		(SCAN 2 VarDeclaration | Statement)*
+		<RETURN> Expression <SEMICOLON> 
+	<CLOSE_CURLY_BRACKET>
+	| 
+	<STATIC> <VOID> <MAIN> <OPEN_PAREN> 
+		Type <OPEN_SQUARE_BRACKET><CLOSE_SQUARE_BRACKET> <IDENTIFIER>
+	<CLOSE_PAREN> 
+	<OPEN_CURLY_BRACKET> 
+		(SCAN 2 VarDeclaration | Statement)* 
+	<CLOSE_CURLY_BRACKET>)
 ;
 
 Type :
 	( <TYPE_INT> (<OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET>)? ) |
 	( <TYPE_BOOL> ) |
+	<TYPE_STRING> |
 	<IDENTIFIER>
 ;
+
+
 
 Statement :
 	( <OPEN_CURLY_BRACKET> (Statement)* <CLOSE_CURLY_BRACKET> ) |
