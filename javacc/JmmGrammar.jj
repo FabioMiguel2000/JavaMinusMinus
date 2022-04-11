@@ -33,8 +33,8 @@ TOKEN :
 	< TYPE_BOOL : "boolean"> |
 	< TYPE_STRING : "String"> |
 
-	< IMPORT: "import"> |
 	< CLASS: "class"> |
+	< IMPORT: "import"> |
 	< EXTENDS: "extends" > |
 	< PUBLIC: "public" > |
 	< RETURN: "return" > |
@@ -85,9 +85,8 @@ MethodDeclaration :
 ;
 
 Type :
-	( <INTEGER> <OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET> ) |
+	( <TYPE_INT> (<OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET>)? ) |
 	( <TYPE_BOOL> ) |
-	( <TYPE_INT> ) |
 	<IDENTIFIER>
 ;
 
