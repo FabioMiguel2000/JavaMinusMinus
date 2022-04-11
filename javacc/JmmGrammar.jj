@@ -29,17 +29,9 @@ TOKEN :
 	< MORE_THAN : ">" > |
 	< NOT_OP : "!" > |
 
-	< IDENTIFIER: ["a"-"z", "A"-"Z", "$", "_"](["a"-"z", "A"-"Z", "0"-"9", "$", "_"])*> |
-	< LETTER : ( <LOWER_CASE> | <UPPER_CASE> ) > |
-	< LOWER_CASE: ["a"-"z"] > | 
-    < UPPER_CASE: ["A"-"Z"] > | 
-	< UNDERSCORE: "_" > |
-	
 	< TYPE_INT : "int"> |
 	< TYPE_BOOL : "boolean"> |
 	< TYPE_STRING : "string"> |
-	
-	
 
 	< IMPORT: "import"> |
 	< CLASS: "class"> |
@@ -56,7 +48,15 @@ TOKEN :
 	< FALSE : "false" > |
 	< NEW : "new" > |
 	< THIS : "this" > |
-	< LENGTH : "length" >
+	< LENGTH : "length" > |
+
+	< IDENTIFIER: ["a"-"z", "A"-"Z", "$", "_"](["a"-"z", "A"-"Z", "0"-"9", "$", "_"])*> |
+	< LETTER : ( <LOWER_CASE> | <UPPER_CASE> ) > |
+	< LOWER_CASE: ["a"-"z"] > | 
+    < UPPER_CASE: ["A"-"Z"] > | 
+	< UNDERSCORE: "_" > 
+	
+
 ;
 
 Program :
@@ -135,16 +135,14 @@ LessThanExpression:
 AdditiveExpression:
 	MultiplicativeExpression
 	(
-		(<PLUS> | <MINUS>)
-		MultiplicativeExpression
+		(<PLUS> MultiplicativeExpression | <MINUS> MultiplicativeExpression)
 	)*
 ;
 
 MultiplicativeExpression:
 	NotExpression
 	(
-		(<DIVIDE> | <TIMES>)
-		NotExpression
+		(<DIVIDE> NotExpression | <TIMES> NotExpression)
 	)*
 ;
 
