@@ -31,7 +31,7 @@ TOKEN :
 
 	< TYPE_INT : "int"> |
 	< TYPE_BOOL : "boolean"> |
-	< TYPE_STRING : "string"> |
+	< TYPE_STRING : "String"> |
 
 	< IMPORT: "import"> |
 	< CLASS: "class"> |
@@ -50,13 +50,10 @@ TOKEN :
 	< THIS : "this" > |
 	< LENGTH : "length" > |
 
-	< IDENTIFIER: ["a"-"z", "A"-"Z", "$", "_"](["a"-"z", "A"-"Z", "0"-"9", "$", "_"])*> |
+	< IDENTIFIER: ( <LETTER> | "$" | "_" )( <LETTER> | "$" | "_"  | <DIGIT>)* > |
 	< LETTER : ( <LOWER_CASE> | <UPPER_CASE> ) > |
 	< LOWER_CASE: ["a"-"z"] > | 
-    < UPPER_CASE: ["A"-"Z"] > | 
-	< UNDERSCORE: "_" > 
-	
-
+    < UPPER_CASE: ["A"-"Z"] > 
 ;
 
 Program :
@@ -98,9 +95,12 @@ Statement :
 	( <OPEN_CURLY_BRACKET> (Statement)* <CLOSE_CURLY_BRACKET> ) |
 	( <IF> <OPEN_PAREN> Expression <CLOSE_PAREN> Statement <ELSE> Statement ) |
 	( <WHILE> <OPEN_PAREN> Expression <CLOSE_PAREN> Statement ) |
-	( Expression <SEMICOLON> ) |
-	( <IDENTIFIER> <EQUALS> Expression <SEMICOLON>  ) |
+	( Expression (Assign)? <SEMICOLON> ) |
 	( <IDENTIFIER> <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET> <EQUALS> Expression <SEMICOLON>  )
+;
+
+Assign:
+	<EQUALS> Expression
 ;
 
 
