@@ -57,129 +57,208 @@ TOKEN :
     < UPPER_CASE: ["A"-"Z"] > 
 ;
 
-Program :
+Program #void:
 	(ImportDeclaration)* ClassDeclaration <EOF>
 ;
 
-ImportDeclaration:
-	<IMPORT> <IDENTIFIER> (ImportDotDeclation)* <SEMICOLON>
+ImportDeclaration :
+	<IMPORT> Id (ImportDotDeclation)* <SEMICOLON>
 ;
+
+Id:
+    <IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage()); }) 
+;
+
 ImportDotDeclation:
-	<DOT> <IDENTIFIER> 
+	<DOT> Id
 ;
 
-ClassDeclaration :
-	(<CLASS> <IDENTIFIER> (<EXTENDS> <IDENTIFIER>)? <OPEN_CURLY_BRACKET> (VarDeclaration)* (MethodDeclaration)* <CLOSE_CURLY_BRACKET>)
+
+ClassDeclaration: 
+	(<CLASS> Id (ExtendsDeclation)? <OPEN_CURLY_BRACKET> (VarDeclaration)* (MethodTypes)* <CLOSE_CURLY_BRACKET>)
 ;
 
-VarDeclaration :
- 	( Type <IDENTIFIER> <SEMICOLON>  )
+ExtendsDeclation:
+	<EXTENDS> Id
+;
+
+VarDeclaration:
+ 	( Type Id <SEMICOLON>   )
 ;	
 
-MethodDeclaration :
+MethodTypes #void:
+	(
+	MethodDeclaration
+	| 
+	MainMethodDeclaration )
+;
+
+MethodDeclaration:
 	<PUBLIC>
 	(SCAN 2 
-	Type <IDENTIFIER> <OPEN_PAREN> 
-		(Type <IDENTIFIER> ( <COMMA> Type <IDENTIFIER> )*)? 
+	MethodReturnType { jjtThis.put("returnType", lastConsumedToken.getImage()); }
+	<IDENTIFIER> { jjtThis.put("name", lastConsumedToken.getImage()); }
+	<OPEN_PAREN> 
+		(FunctionParameters)?
 	<CLOSE_PAREN> 
 	<OPEN_CURLY_BRACKET> 
 		(SCAN 2 VarDeclaration | Statement)*
-		<RETURN> Expression <SEMICOLON> 
-	<CLOSE_CURLY_BRACKET>
-	| 
-	<STATIC> <VOID> <MAIN> <OPEN_PAREN> 
-		Type <OPEN_SQUARE_BRACKET><CLOSE_SQUARE_BRACKET> <IDENTIFIER>
-	<CLOSE_PAREN> 
-	<OPEN_CURLY_BRACKET> 
-		(SCAN 2 VarDeclaration | Statement)* 
+		ReturnDeclaration
 	<CLOSE_CURLY_BRACKET>)
 ;
 
-Type :
-	( <TYPE_INT> (<OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET>)? ) |
+MethodReturnType #void:
+	( <TYPE_INT>
+	(<OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET> )? ) |
 	( <TYPE_BOOL> ) |
-	<TYPE_STRING> |
-	<IDENTIFIER>
+	<TYPE_STRING>  |
+	<IDENTIFIER> 
 ;
 
-Statement :
-	( <OPEN_CURLY_BRACKET> (Statement)* <CLOSE_CURLY_BRACKET> ) |
-	( <IF> <OPEN_PAREN> Expression <CLOSE_PAREN> Statement <ELSE> Statement ) |
-	( <WHILE> <OPEN_PAREN> Expression <CLOSE_PAREN> Statement ) |
-	( Expression (Assign)? <SEMICOLON> ) |
-	( <IDENTIFIER> <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET> <EQUALS> Expression <SEMICOLON>  )
+FunctionParameters #void:
+	( FunctionParameter ( <COMMA> FunctionParameter )*)
 ;
 
-Assign:
-	<EQUALS> Expression
+FunctionParameter:
+	Type Id
 ;
 
-
-Expression :
-	AndExpression
+ReturnDeclaration:
+	<RETURN> Expression <SEMICOLON> 
 ;
 
-AndExpression:
-	LessThanExpression (<AND_OP> LessThanExpression)*
+MainMethodDeclaration:
+	<PUBLIC> <STATIC> <VOID> <MAIN> { jjtThis.put("name", "static void main"); }
+	<OPEN_PAREN> 
+		MainMethodParameters
+	<CLOSE_PAREN> 
+	<OPEN_CURLY_BRACKET> 
+		(SCAN 2 VarDeclaration | Statement)* 
+	<CLOSE_CURLY_BRACKET>
 ;
 
-LessThanExpression:
-	AdditiveExpression (<LESS_THAN> AdditiveExpression)*
+MainMethodParameters:
+	<TYPE_STRING> <OPEN_SQUARE_BRACKET><CLOSE_SQUARE_BRACKET> <IDENTIFIER> { jjtThis.put("name", "args[]"); }
 ;
 
-AdditiveExpression:
-	MultiplicativeExpression
-	(
-		(<PLUS> MultiplicativeExpression | <MINUS> MultiplicativeExpression)
-	)*
+Type:
+	( <TYPE_INT> { jjtThis.put("type", lastConsumedToken.getImage()); }
+	(<OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET> { jjtThis.put("type", "int[]"); jjtThis.put("isArray", "true"); })? ) |
+	( <TYPE_BOOL> ) { jjtThis.put("type", lastConsumedToken.getImage()); }|
+	<TYPE_STRING>  { jjtThis.put("type", lastConsumedToken.getImage()); }|
+	<IDENTIFIER> { jjtThis.put("type", lastConsumedToken.getImage());}
 ;
 
-MultiplicativeExpression:
-	NotExpression
-	(
-		(<DIVIDE> NotExpression | <TIMES> NotExpression)
-	)*
+Statement #void:
+	ScopeStatement |
+	( IfElseStatement ) |
+	( WhileStatement ) |
+	Assign
 ;
 
-NotExpression:
-	<NOT_OP> NotExpression | TerminalExpression
-;
-
-TerminalExpression:
-	Factor (ArrayAccessExpression | MemberAcessExpression)*
-;
-
-ArrayAccessExpression:
+ArrayAccess:
 	<OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET>
 ;
 
-MemberAcessExpression:
+WhileStatement:
+	<WHILE> <OPEN_PAREN> Expression #WhileCondition <CLOSE_PAREN> Statement
+;
+
+IfElseStatement:
+	IfStatement ElseStatement
+;
+IfStatement:
+	<IF> <OPEN_PAREN> Expression #IfCondition <CLOSE_PAREN> Statement
+;
+ElseStatement:
+	<ELSE> Statement
+;
+
+ScopeStatement:
+	( <OPEN_CURLY_BRACKET> (Statement)* <CLOSE_CURLY_BRACKET> )
+;
+
+Assign:
+	(SCAN 2
+	( Id (ArrayAccess)? <EQUALS> { jjtThis.put("value", "="); } Expression<SEMICOLON>) | (Expression <SEMICOLON>))
+;
+
+
+Expression #void:
+	AndExpression 
+;
+
+AndExpression #void:
+	LessThanExpression ((<AND_OP> LessThanExpression { jjtThis.put("value", "&&");}) #BinOp(2))* 
+;
+
+LessThanExpression #void:
+	AdditiveExpression ((<LESS_THAN> AdditiveExpression { jjtThis.put("value", "<");}) #BinOp(2))*
+;
+
+AdditiveExpression #void:
+	MultiplicativeExpression
+	(
+		( (<PLUS> MultiplicativeExpression) ({ jjtThis.put("op", "add"); }) #BinOp(2)) 
+		| ((<MINUS> MultiplicativeExpression)({ jjtThis.put("op", "sub"); }) #BinOp(2))
+	)*
+;
+
+MultiplicativeExpression #void:
+	NotExpression
+	(
+		((<DIVIDE> NotExpression { jjtThis.put("op", "/"); })#BinOp(2) 
+		| (<TIMES> NotExpression { jjtThis.put("op", "*"); })#BinOp(2))
+	)*
+;
+
+NotExpression #void:
+	(<NOT_OP> (NotExpression { jjtThis.put("value", "!"); })) #NotExpression | TerminalExpression
+;
+
+TerminalExpression #void:
+	Factor (ArrayAccessExpression | MemberAcessExpression)*
+;
+
+ArrayAccessExpression #void:
+	<OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET> #ArrayAccessExpression(2) 
+;
+
+MemberAcessExpression #void:
 	<DOT>
 	(
-		<LENGTH> | (<IDENTIFIER> <OPEN_PAREN> (Expression (<COMMA> Expression)*)? <CLOSE_PAREN>)
+		((<LENGTH> { jjtThis.put("value", ".length"); jjtThis.put("type", "int"); }) #LengthProperty(1)) | MethodCallExpression #CallExpression(2)
 	)
 ;
 
-Factor:
+MethodCallExpression: 
+	(Id <OPEN_PAREN> ((Expression (<COMMA> Expression)*)? #Parameters) <CLOSE_PAREN>)
+;
+
+Factor #void:
 	Literals |
 	(<OPEN_PAREN> Expression <CLOSE_PAREN>) |
 	ObjectCreationExpression
 ;
 
-Literals:
-	(<INTEGER>) |
-	(<TRUE>) |
-	(<FALSE>) |
-	(<IDENTIFIER>) |
-	(<THIS>) 
+Literals #void:
+	(<INTEGER> {jjtThis.put("type", "int"); jjtThis.put("value", lastConsumedToken.getImage()); } ) #Literal|
+	(<TRUE> {jjtThis.put("type", "boolean"); jjtThis.put("value", lastConsumedToken.getImage()); }) #Literal|
+	(<FALSE> {jjtThis.put("type", "boolean"); jjtThis.put("value", lastConsumedToken.getImage()); }) #Literal|
+	(Id) |
+	(<THIS> {jjtThis.put("type", "class"); jjtThis.put("value", lastConsumedToken.getImage()); }) #Literal 
 ;
 
 ObjectCreationExpression:
-	<NEW>
+	<NEW> {jjtThis.put("value", "new"); }
 	(
-		<TYPE_INT> <OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET> |
-		<IDENTIFIER> <OPEN_PAREN> <CLOSE_PAREN>
+		<TYPE_INT> ArrayDeclaration |
+		Id <OPEN_PAREN> <CLOSE_PAREN>
 	)
+;
+
+ArrayDeclaration:
+	<OPEN_SQUARE_BRACKET> Expression <CLOSE_SQUARE_BRACKET> 
 ;
 
 INJECT BaseNode :
