@@ -57,7 +57,7 @@ TOKEN :
     < UPPER_CASE: ["A"-"Z"] > 
 ;
 
-Program #void:
+Program :
 	(ImportDeclaration)* ClassDeclaration <EOF>
 ;
 
@@ -75,7 +75,11 @@ ImportDotDeclation:
 
 
 ClassDeclaration: 
-	(<CLASS> Id (ExtendsDeclation)? <OPEN_CURLY_BRACKET> (VarDeclaration)* (MethodTypes)* <CLOSE_CURLY_BRACKET>)
+	(<CLASS> Id (ExtendsDeclation)?
+	<OPEN_CURLY_BRACKET> 
+		(VarDeclaration)* 
+		(MethodTypes)* 
+	<CLOSE_CURLY_BRACKET>)
 ;
 
 ExtendsDeclation:
@@ -86,15 +90,18 @@ VarDeclaration:
  	( Type Id <SEMICOLON>   )
 ;	
 
+
 MethodTypes #void:
+	<PUBLIC>
 	(
 	MethodDeclaration
 	| 
-	MainMethodDeclaration )
+	MainMethodDeclaration 
+	)
 ;
 
 MethodDeclaration:
-	<PUBLIC>
+	
 	(SCAN 2 
 	MethodReturnType { jjtThis.put("returnType", lastConsumedToken.getImage()); }
 	<IDENTIFIER> { jjtThis.put("name", lastConsumedToken.getImage()); }
@@ -106,6 +113,22 @@ MethodDeclaration:
 		ReturnDeclaration
 	<CLOSE_CURLY_BRACKET>)
 ;
+/*
+MethodDeclaration2:
+	<PUBLIC>
+	(SCAN 2 
+	<STATIC> { jjtThis.put("static", "true"); }
+
+	MethodReturnType { jjtThis.put("returnType", lastConsumedToken.getImage()); }
+	<IDENTIFIER> { jjtThis.put("name", lastConsumedToken.getImage()); }
+	<OPEN_PAREN> 
+		(FunctionParameters)?
+	<CLOSE_PAREN> 
+	<OPEN_CURLY_BRACKET> 
+		(SCAN 2 VarDeclaration | Statement)*
+		ReturnDeclaration
+	<CLOSE_CURLY_BRACKET>)
+;*/
 
 MethodReturnType #void:
 	( <TYPE_INT>
@@ -128,7 +151,7 @@ ReturnDeclaration:
 ;
 
 MainMethodDeclaration:
-	<PUBLIC> <STATIC> <VOID> <MAIN> { jjtThis.put("name", "static void main"); }
+	<STATIC> <VOID> <MAIN> { jjtThis.put("name", "static void main"); }
 	<OPEN_PAREN> 
 		MainMethodParameters
 	<CLOSE_PAREN> 

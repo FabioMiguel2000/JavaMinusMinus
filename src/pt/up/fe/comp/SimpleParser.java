@@ -27,7 +27,6 @@ import pt.up.fe.specs.util.SpecsSystem;
 
 public class SimpleParser implements JmmParser {
 
-    @Override
     public JmmParserResult parse(String jmmCode, Map<String, String> config) {
         return parse(jmmCode, "Program", config);
     }
