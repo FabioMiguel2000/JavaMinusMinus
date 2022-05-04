@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import pt.up.fe.comp.Analysis.JmmAnalyser;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
@@ -50,7 +51,7 @@ public class Launcher {
         //  TODO CHECKPOINT 2
 
         // ----------------- JmmAnalysis Stage ----------------------
-        JmmAnalyser analyser = new JmmAnalyser(); 
+        JmmAnalyser analyser = new JmmAnalyser();
         // Analysis stage 
         JmmSemanticsResult analysisResult = analyser.semanticAnalysis(parserResult);
         // Check if there are parsing errors 

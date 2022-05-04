@@ -69,22 +69,22 @@ Id:
     <IDENTIFIER> ({jjtThis.put("name", lastConsumedToken.getImage()); }) 
 ;
 
-ImportDotDeclation:
+ImportDotDeclation #void:
 	<DOT> Id
 ;
 
 
 ClassDeclaration: 
-	(<CLASS> Id (ExtendsDeclation)?
+	(<CLASS> <IDENTIFIER>({jjtThis.put("name", lastConsumedToken.getImage()); }) (<EXTENDS> <IDENTIFIER>({jjtThis.put("extends", lastConsumedToken.getImage()); }))?
 	<OPEN_CURLY_BRACKET> 
 		(VarDeclaration)* 
 		(MethodTypes)* 
 	<CLOSE_CURLY_BRACKET>)
 ;
-
-ExtendsDeclation:
-	<EXTENDS> Id
-;
+/*
+ExtendsDeclation #void:
+	<EXTENDS> <IDENTIFIER>({jjtThis.put("extends", lastConsumedToken.getImage()); })
+;*/
 
 VarDeclaration:
  	( Type Id <SEMICOLON>   )
@@ -96,12 +96,11 @@ MethodTypes #void:
 	(
 	MethodDeclaration
 	| 
-	MainMethodDeclaration 
+	MainMethodDeclaration
 	)
 ;
 
 MethodDeclaration:
-	
 	(SCAN 2 
 	MethodReturnType { jjtThis.put("returnType", lastConsumedToken.getImage()); }
 	<IDENTIFIER> { jjtThis.put("name", lastConsumedToken.getImage()); }
@@ -113,22 +112,6 @@ MethodDeclaration:
 		ReturnDeclaration
 	<CLOSE_CURLY_BRACKET>)
 ;
-/*
-MethodDeclaration2:
-	<PUBLIC>
-	(SCAN 2 
-	<STATIC> { jjtThis.put("static", "true"); }
-
-	MethodReturnType { jjtThis.put("returnType", lastConsumedToken.getImage()); }
-	<IDENTIFIER> { jjtThis.put("name", lastConsumedToken.getImage()); }
-	<OPEN_PAREN> 
-		(FunctionParameters)?
-	<CLOSE_PAREN> 
-	<OPEN_CURLY_BRACKET> 
-		(SCAN 2 VarDeclaration | Statement)*
-		ReturnDeclaration
-	<CLOSE_CURLY_BRACKET>)
-;*/
 
 MethodReturnType #void:
 	( <TYPE_INT>
@@ -151,7 +134,7 @@ ReturnDeclaration:
 ;
 
 MainMethodDeclaration:
-	<STATIC> <VOID> <MAIN> { jjtThis.put("name", "static void main"); }
+	<STATIC>{ jjtThis.put("isStatic", "true"); } <VOID>{ jjtThis.put("returnType", "void"); } <MAIN> { jjtThis.put("name", "main"); }
 	<OPEN_PAREN> 
 		MainMethodParameters
 	<CLOSE_PAREN> 
