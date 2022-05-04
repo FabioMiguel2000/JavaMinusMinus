@@ -9,5 +9,6 @@ public class AnalysisTest {
         System.out.println(result.getRootNode().toTree());
         var result2 = TestUtils.analyse(SpecsIo.getResource("fixtures/public/HelloWorld.jmm")); // Calls JmmAnalyser semanticAnalysis()
         System.out.println("SymbolTable: " + result2.getSymbolTable().print());
+        TestUtils.noErrors(result2);
     }
 }

@@ -64,7 +64,7 @@ public class JmmSymbolTableBuilder implements SymbolTable {
         return methods.contains(methodSignature);
     }
 
-    public void addMethods(String methodSignature, Type returnType, List<Symbol> params){
+    public void addMethod(String methodSignature, Type returnType, List<Symbol> params){
         this.methods.add(methodSignature);
         this.methodReturnTypes.put(methodSignature, returnType);
         this.methodParams.put(methodSignature, params);

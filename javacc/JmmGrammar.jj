@@ -102,7 +102,7 @@ MethodTypes #void:
 
 MethodDeclaration:
 	(SCAN 2 
-	MethodReturnType { jjtThis.put("returnType", lastConsumedToken.getImage()); }
+	Type
 	<IDENTIFIER> { jjtThis.put("name", lastConsumedToken.getImage()); }
 	<OPEN_PAREN> 
 		(FunctionParameters)?
@@ -121,11 +121,12 @@ MethodReturnType #void:
 	<IDENTIFIER> 
 ;
 
+
 FunctionParameters #void:
 	( FunctionParameter ( <COMMA> FunctionParameter )*)
 ;
 
-FunctionParameter:
+FunctionParameter #Parameter:
 	Type Id
 ;
 
@@ -133,8 +134,8 @@ ReturnDeclaration:
 	<RETURN> Expression <SEMICOLON> 
 ;
 
-MainMethodDeclaration:
-	<STATIC>{ jjtThis.put("isStatic", "true"); } <VOID>{ jjtThis.put("returnType", "void"); } <MAIN> { jjtThis.put("name", "main"); }
+MainMethodDeclaration #MethodDeclaration:
+	<STATIC>{ jjtThis.put("isStatic", "true"); } MainMethodReturnType <MAIN> { jjtThis.put("name", "main"); }
 	<OPEN_PAREN> 
 		MainMethodParameters
 	<CLOSE_PAREN> 
@@ -143,16 +144,24 @@ MainMethodDeclaration:
 	<CLOSE_CURLY_BRACKET>
 ;
 
-MainMethodParameters:
-	<TYPE_STRING> <OPEN_SQUARE_BRACKET><CLOSE_SQUARE_BRACKET> <IDENTIFIER> { jjtThis.put("name", "args[]"); }
+MainMethodReturnType #Type:
+    <VOID>{ jjtThis.put("name", lastConsumedToken.getImage()); }
+;
+
+MainMethodParameters #Parameter:
+	MainMethodParametersType <OPEN_SQUARE_BRACKET><CLOSE_SQUARE_BRACKET> Id
+;
+
+MainMethodParametersType #Type:
+    <TYPE_STRING>{ jjtThis.put("name", lastConsumedToken.getImage()); }
 ;
 
 Type:
-	( <TYPE_INT> { jjtThis.put("type", lastConsumedToken.getImage()); }
+	( <TYPE_INT> { jjtThis.put("name", lastConsumedToken.getImage()); }
 	(<OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET> { jjtThis.put("type", "int[]"); jjtThis.put("isArray", "true"); })? ) |
-	( <TYPE_BOOL> ) { jjtThis.put("type", lastConsumedToken.getImage()); }|
-	<TYPE_STRING>  { jjtThis.put("type", lastConsumedToken.getImage()); }|
-	<IDENTIFIER> { jjtThis.put("type", lastConsumedToken.getImage());}
+	( <TYPE_BOOL> ) { jjtThis.put("name", lastConsumedToken.getImage()); }|
+	<TYPE_STRING>  { jjtThis.put("name", lastConsumedToken.getImage()); }|
+	<IDENTIFIER> { jjtThis.put("name", lastConsumedToken.getImage());}
 ;
 
 Statement #void:

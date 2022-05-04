@@ -3,6 +3,7 @@ package pt.up.fe.comp;
 import java.util.Collections;
 import java.util.Map;
 
+import pt.up.fe.comp.AST.LineColAnnotator;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.parser.JmmParser;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
@@ -42,6 +43,10 @@ public class SimpleParser implements JmmParser {
 
             Node root = parser.rootNode();
             root.dump("");
+
+
+            new LineColAnnotator().visit((JmmNode) root);   // To annotate line and col of each node, which can be used to print error messages
+
 
             if (!(root instanceof JmmNode)) {
                 return JmmParserResult.newError(new Report(ReportType.WARNING, Stage.SYNTATIC, -1,

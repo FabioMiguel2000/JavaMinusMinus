@@ -3,8 +3,11 @@ package pt.up.fe.comp.Analysis;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.ReportType;
+import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,7 +23,7 @@ public class JmmSymbolTableFiller extends PreorderJmmVisitor<JmmSymbolTableBuild
         this.reports = new ArrayList<>();
         IMPORT_DECL = "ImportDeclaration";
         CLASS_DECL = "ClassDeclaration";
-        METHOD_DECL = "MethodTypes";
+        METHOD_DECL = "MethodDeclaration";
         PROGRAM = "Program";
 
         addVisit(IMPORT_DECL, this::importDeclVisit); //Every time IMPORT_DECL is seen it will call the `this::importDeclVisit` method
@@ -58,9 +61,21 @@ public class JmmSymbolTableFiller extends PreorderJmmVisitor<JmmSymbolTableBuild
     }
 
     private Integer methodDeclVisit(JmmNode methodDecl, JmmSymbolTableBuilder symbolTable){
+        // For methodDeclaration 'name' and 'isStatic' is a node attribute, and 'Type' is a
         // todo
-        var Method = methodDecl;
+        String methodName = methodDecl.get("name");
 
+        if(symbolTable.hasMethod(methodName)){  // Check whether already exists
+            reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.valueOf(methodDecl.get("line")), Integer.valueOf(methodDecl.get("col")), "Found duplicated method with signature '" + methodName + "'"));
+        }
+
+        var returnType = methodDecl.getJmmChild(0);
+//        boolean isArray = methodDecl.get("returnType").contains("[]");
+
+//        System.out.println("RETURN TYPE: " + returnType);
+
+        symbolTable.addMethod(methodName, null, Collections.emptyList());
+        System.out.println("MethodDecl: "+methodDecl.get("name"));
 
         return 0;
     }
