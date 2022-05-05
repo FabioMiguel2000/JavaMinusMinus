@@ -1,5 +1,7 @@
 package pt.up.fe.comp.Analysis;
 
+import pt.up.fe.comp.AST.AstUtils;
+import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
@@ -64,28 +66,24 @@ public class JmmSymbolTableFiller extends PreorderJmmVisitor<JmmSymbolTableBuild
 
     private Integer methodDeclVisit(JmmNode methodDecl, JmmSymbolTableBuilder symbolTable){
         // For methodDeclaration 'name' and 'isStatic' is a node attribute, and 'Type' is a
-        // todo
         String methodName = methodDecl.get("name");
 
         if(symbolTable.hasMethod(methodName)){  // Check whether already exists
             reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.valueOf(methodDecl.get("line")), Integer.valueOf(methodDecl.get("col")), "Found duplicated method with signature '" + methodName + "'"));
         }
 
-        var returnType = methodDecl.getJmmChild(0);
-        var typeName = returnType.get("name");
-        boolean isArray = Objects.equals(returnType.get("isArray"), "true");
-
-        //var params = methodDecl.getChildren().subList(2, methodDecl.getNumChildren()-1);
+        var returnTypeNode = methodDecl.getJmmChild(0);
+        var returnType = AstUtils.buildType(returnTypeNode);
 
         var params =  methodDecl.getChildren().subList(1, methodDecl.getNumChildren()).stream()
                         .filter(node->node.getKind().equals("Parameter"))
                         .collect(Collectors.toList());
 
+        var paramSymbols = params.stream()
+                        .map(param -> new Symbol(AstUtils.buildType(param.getJmmChild(0)), param.getJmmChild(1).get("name")))
+                .collect(Collectors.toList());
 
-        System.out.println("PARAMS: "+ params);
-        symbolTable.addMethod(methodName, new Type(typeName, isArray), Collections.emptyList());
-
-
+        symbolTable.addMethod(methodName, returnType, paramSymbols);
 
         return 0;
     }

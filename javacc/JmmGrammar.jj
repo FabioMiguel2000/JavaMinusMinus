@@ -158,7 +158,7 @@ MainMethodParametersType #Type:
 
 Type:
 	( <TYPE_INT> { jjtThis.put("name", lastConsumedToken.getImage()); jjtThis.put("isArray", "false");}
-	(<OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET> { jjtThis.put("name", "int[]"); jjtThis.put("isArray", "true"); })? ) |
+	(<OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET> { jjtThis.put("name", "int"); jjtThis.put("isArray", "true"); })? ) |
 	( <TYPE_BOOL> ) { jjtThis.put("name", lastConsumedToken.getImage()); jjtThis.put("isArray", "false");}|
 	<TYPE_STRING>  { jjtThis.put("name", lastConsumedToken.getImage()); jjtThis.put("isArray", "false");}|
 	<IDENTIFIER> { jjtThis.put("name", lastConsumedToken.getImage());jjtThis.put("isArray", "false");}
