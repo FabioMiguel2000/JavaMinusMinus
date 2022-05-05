@@ -102,7 +102,7 @@ MethodTypes #void:
 
 MethodDeclaration:
 	(SCAN 2 
-	Type
+	Type { jjtThis.put("isStatic", "false"); }
 	<IDENTIFIER> { jjtThis.put("name", lastConsumedToken.getImage()); }
 	<OPEN_PAREN> 
 		(FunctionParameters)?
@@ -145,30 +145,30 @@ MainMethodDeclaration #MethodDeclaration:
 ;
 
 MainMethodReturnType #Type:
-    <VOID>{ jjtThis.put("name", lastConsumedToken.getImage()); }
+    <VOID>{ jjtThis.put("name", lastConsumedToken.getImage());  jjtThis.put("isArray", "false");}
 ;
 
 MainMethodParameters #Parameter:
-	MainMethodParametersType <OPEN_SQUARE_BRACKET><CLOSE_SQUARE_BRACKET> Id
+	MainMethodParametersType Id
 ;
 
 MainMethodParametersType #Type:
-    <TYPE_STRING>{ jjtThis.put("name", lastConsumedToken.getImage()); }
+    <TYPE_STRING>{ jjtThis.put("name", lastConsumedToken.getImage());}<OPEN_SQUARE_BRACKET><CLOSE_SQUARE_BRACKET>{ jjtThis.put("isArray", "true");}
 ;
 
 Type:
-	( <TYPE_INT> { jjtThis.put("name", lastConsumedToken.getImage()); }
-	(<OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET> { jjtThis.put("type", "int[]"); jjtThis.put("isArray", "true"); })? ) |
-	( <TYPE_BOOL> ) { jjtThis.put("name", lastConsumedToken.getImage()); }|
-	<TYPE_STRING>  { jjtThis.put("name", lastConsumedToken.getImage()); }|
-	<IDENTIFIER> { jjtThis.put("name", lastConsumedToken.getImage());}
+	( <TYPE_INT> { jjtThis.put("name", lastConsumedToken.getImage()); jjtThis.put("isArray", "false");}
+	(<OPEN_SQUARE_BRACKET> <CLOSE_SQUARE_BRACKET> { jjtThis.put("name", "int[]"); jjtThis.put("isArray", "true"); })? ) |
+	( <TYPE_BOOL> ) { jjtThis.put("name", lastConsumedToken.getImage()); jjtThis.put("isArray", "false");}|
+	<TYPE_STRING>  { jjtThis.put("name", lastConsumedToken.getImage()); jjtThis.put("isArray", "false");}|
+	<IDENTIFIER> { jjtThis.put("name", lastConsumedToken.getImage());jjtThis.put("isArray", "false");}
 ;
 
-Statement #void:
+Statement:
 	ScopeStatement |
 	( IfElseStatement ) |
 	( WhileStatement ) |
-	Assign
+	( Expression (Assignment)? <SEMICOLON> )
 ;
 
 ArrayAccess:
@@ -193,11 +193,9 @@ ScopeStatement:
 	( <OPEN_CURLY_BRACKET> (Statement)* <CLOSE_CURLY_BRACKET> )
 ;
 
-Assign:
-	(SCAN 2
-	( Id (ArrayAccess)? <EQUALS> { jjtThis.put("value", "="); } Expression<SEMICOLON>) | (Expression <SEMICOLON>))
+Assignment #void:
+    <EQUALS> Expression #Assignment(2)
 ;
-
 
 Expression #void:
 	AndExpression 
@@ -242,12 +240,17 @@ ArrayAccessExpression #void:
 MemberAcessExpression #void:
 	<DOT>
 	(
-		((<LENGTH> { jjtThis.put("value", ".length"); jjtThis.put("type", "int"); }) #LengthProperty(1)) | MethodCallExpression #CallExpression(2)
+		LengthProperty
+		| MethodCallExpression
 	)
 ;
 
-MethodCallExpression: 
-	(Id <OPEN_PAREN> ((Expression (<COMMA> Expression)*)? #Parameters) <CLOSE_PAREN>)
+LengthProperty:
+    <LENGTH> { jjtThis.put("value", ".length"); jjtThis.put("type", "int"); }
+;
+
+MethodCallExpression #CallExpression(2):
+	(Id <OPEN_PAREN> ((Expression (<COMMA> Expression)*)? #Arguments) <CLOSE_PAREN>)
 ;
 
 Factor #void:

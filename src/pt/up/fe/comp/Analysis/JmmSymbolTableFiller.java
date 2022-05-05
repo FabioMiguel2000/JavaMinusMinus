@@ -1,5 +1,6 @@
 package pt.up.fe.comp.Analysis;
 
+import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp.jmm.report.Report;
@@ -9,6 +10,7 @@ import pt.up.fe.comp.jmm.report.Stage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class JmmSymbolTableFiller extends PreorderJmmVisitor<JmmSymbolTableBuilder, Integer> {
@@ -70,12 +72,20 @@ public class JmmSymbolTableFiller extends PreorderJmmVisitor<JmmSymbolTableBuild
         }
 
         var returnType = methodDecl.getJmmChild(0);
-//        boolean isArray = methodDecl.get("returnType").contains("[]");
+        var typeName = returnType.get("name");
+        boolean isArray = Objects.equals(returnType.get("isArray"), "true");
 
-//        System.out.println("RETURN TYPE: " + returnType);
+        //var params = methodDecl.getChildren().subList(2, methodDecl.getNumChildren()-1);
 
-        symbolTable.addMethod(methodName, null, Collections.emptyList());
-        System.out.println("MethodDecl: "+methodDecl.get("name"));
+        var params =  methodDecl.getChildren().subList(1, methodDecl.getNumChildren()).stream()
+                        .filter(node->node.getKind().equals("Parameter"))
+                        .collect(Collectors.toList());
+
+
+        System.out.println("PARAMS: "+ params);
+        symbolTable.addMethod(methodName, new Type(typeName, isArray), Collections.emptyList());
+
+
 
         return 0;
     }
