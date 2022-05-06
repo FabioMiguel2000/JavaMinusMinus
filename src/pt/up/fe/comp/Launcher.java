@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pt.up.fe.comp.Analysis.JmmAnalyser;
+import pt.up.fe.comp.Ollir.JmmOptimizer;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
@@ -60,7 +61,7 @@ public class Launcher {
 
 
         // ----------------- JmmOptimization Stage ------------------
-        JmmOptimizer optimizer = new JmmOptimizer(); 
+        JmmOptimizer optimizer = new JmmOptimizer();
 
         //JmmSemanticsResult optimisationResult = optimizer.optimize(analysisResult); 
 

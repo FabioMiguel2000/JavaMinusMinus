@@ -1,5 +1,6 @@
 package pt.up.fe.comp.Analysis;
 
+import pt.up.fe.comp.AST.AstNode;
 import pt.up.fe.comp.AST.AstUtils;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
@@ -18,22 +19,12 @@ import java.util.stream.Collectors;
 public class JmmSymbolTableFiller extends PreorderJmmVisitor<JmmSymbolTableBuilder, Integer> {
     private List<Report> reports;
 
-    private final String IMPORT_DECL;
-    private final String CLASS_DECL;
-    private final String PROGRAM;
-    private final String METHOD_DECL;
-
     public JmmSymbolTableFiller(){
         this.reports = new ArrayList<>();
-        IMPORT_DECL = "ImportDeclaration";
-        CLASS_DECL = "ClassDeclaration";
-        METHOD_DECL = "MethodDeclaration";
-        PROGRAM = "Program";
 
-        addVisit(IMPORT_DECL, this::importDeclVisit); //Every time IMPORT_DECL is seen it will call the `this::importDeclVisit` method
-        addVisit(CLASS_DECL, this::classDeclVisit); //Every time CLASS_DECL is seen it will call the `this::ClassDeclVisit` method
-        addVisit(METHOD_DECL, this::methodDeclVisit); //Every time METHOD_DECL is seen it will call the `this::methodDeclVisit` method
-
+        addVisit(AstNode.IMPORT_DECLARATION, this::importDeclVisit); //Every time IMPORT_DECL is seen it will call the `this::importDeclVisit` method
+        addVisit(AstNode.CLASS_DECLARATION, this::classDeclVisit); //Every time CLASS_DECL is seen it will call the `this::ClassDeclVisit` method
+        addVisit(AstNode.METHOD_DECLARATION, this::methodDeclVisit); //Every time METHOD_DECL is seen it will call the `this::methodDeclVisit` method
 
     }
 
