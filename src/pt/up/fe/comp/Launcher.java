@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pt.up.fe.comp.Analysis.JmmAnalyser;
+import pt.up.fe.comp.Jasmin.JmmJasminEmitter;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
@@ -64,18 +65,23 @@ public class Launcher {
 
         //JmmSemanticsResult optimisationResult = optimizer.optimize(analysisResult); 
 
-        OllirResult ollirResult = optimizer.toOllir(analysisResult);
+        var optimisationResultStep1 = optimizer.optimize(analysisResult);
+
+        var optimisationResultStep2 = optimizer.toOllir(optimisationResultStep1);
+
+        var ollirResult = optimizer.optimize(optimisationResultStep2);
+
 
         TestUtils.noErrors(ollirResult.getReports()); 
         // ----------------------------------------------------------
 
 
         // ----------------- Jasmin BackEnd Stage ------------------
-        JmmJasminBackend JasminBackend = new JmmJasminBackend(); 
+        JmmJasminEmitter jasminEmitter = new JmmJasminEmitter();
 
-        JasminResult jasminResult = JasminBackend.toJasmin(ollirResult);
+        JasminResult jasminResult = jasminEmitter.toJasmin(ollirResult);
 
-        TestUtils.noErrors(jasminResult.getReports()); 
+        TestUtils.noErrors(jasminResult);
         // ----------------------------------------------------------
 
 

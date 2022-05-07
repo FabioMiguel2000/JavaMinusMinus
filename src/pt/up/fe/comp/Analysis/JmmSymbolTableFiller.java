@@ -33,8 +33,7 @@ public class JmmSymbolTableFiller extends PreorderJmmVisitor<JmmSymbolTableBuild
         addVisit(IMPORT_DECL, this::importDeclVisit); //Every time IMPORT_DECL is seen it will call the `this::importDeclVisit` method
         addVisit(CLASS_DECL, this::classDeclVisit); //Every time CLASS_DECL is seen it will call the `this::ClassDeclVisit` method
         addVisit(METHOD_DECL, this::methodDeclVisit); //Every time METHOD_DECL is seen it will call the `this::methodDeclVisit` method
-
-
+        
     }
 
     public List<Report> getReports() {

@@ -1,12 +1,9 @@
-import ioPlus.somthin.s;
 import ioPlus;
-import ioPlus;
+import BoardBase;
+import java.io.File;
 
-class HelloWorld extends Father{
+class HelloWorld extends BoardBase{
 	public static void main(String[] args) {
 		ioPlus.printHelloWorld();
 	}
-    public int[] find_maximum(int[] arr) {
-        return 1;
-    }
 }

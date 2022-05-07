@@ -1,4 +1,4 @@
-package pt.up.fe.comp; 
+package pt.up.fe.comp.Jasmin;
 
 
 import java.util.*;
@@ -8,7 +8,7 @@ import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.report.Report;
 
-public class JmmJasminBackend implements JasminBackend{
+public class JmmJasminEmitter implements JasminBackend{
 
     // todo
     // Converts the OLLIR to Jasmin Bytecodes with optimizations performed at the AST level and at the OLLIR
@@ -19,6 +19,9 @@ public class JmmJasminBackend implements JasminBackend{
         List<Report> reports = new ArrayList<Report>();
         Map<String, String> config = new HashMap<>();
 
-        return new JasminResult("className", "jasminCode", reports, config);
+        String jasminCode = new OllirToJasmin(ollirResult.getOllirClass()).getCode();
+        System.out.println("JASMIN\n" + jasminCode);
+
+        return new JasminResult(ollirResult, jasminCode, Collections.emptyList());
     }
 }

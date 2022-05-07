@@ -28,6 +28,7 @@ public class JmmOptimizer implements JmmOptimization {
      */
     @Override
     public OllirResult toOllir(JmmSemanticsResult semanticsResult) {
+
         return null;
     }
 
