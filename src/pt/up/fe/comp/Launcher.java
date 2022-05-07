@@ -7,9 +7,9 @@ import java.util.Map;
 
 import pt.up.fe.comp.Analysis.JmmAnalyser;
 import pt.up.fe.comp.Jasmin.JmmJasminEmitter;
+import pt.up.fe.comp.Ollir.JmmOptimizer;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
-import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
@@ -61,7 +61,7 @@ public class Launcher {
 
 
         // ----------------- JmmOptimization Stage ------------------
-        JmmOptimizer optimizer = new JmmOptimizer(); 
+        JmmOptimizer optimizer = new JmmOptimizer();
 
         //JmmSemanticsResult optimisationResult = optimizer.optimize(analysisResult); 
 

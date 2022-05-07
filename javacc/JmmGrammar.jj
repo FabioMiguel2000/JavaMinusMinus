@@ -249,7 +249,7 @@ LengthProperty:
     <LENGTH> { jjtThis.put("value", ".length"); jjtThis.put("type", "int"); }
 ;
 
-MethodCallExpression #CallExpression(2):
+MethodCallExpression #CallExpression(3):
 	(Id <OPEN_PAREN> ((Expression (<COMMA> Expression)*)? #Arguments) <CLOSE_PAREN>)
 ;
 
