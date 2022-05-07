@@ -33,10 +33,10 @@ public class OllirToJasmin {
     public String getCode(){
         var code = new StringBuilder();
 
-        code.append(".class public ").append(classUnit.getClass()).append("\n");
+        code.append(".class public ").append(classUnit.getClassName()).append("\n");
         code.append(".super ").append(classUnit.getSuperClass()).append("\n");
 
-        System.out.println(getFullyQualifiedName(classUnit.getSuperClass()));
+//        System.out.println(getFullyQualifiedName(classUnit.getSuperClass()));
 
         return code.toString();
     }
