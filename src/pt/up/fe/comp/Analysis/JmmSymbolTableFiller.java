@@ -70,6 +70,9 @@ public class JmmSymbolTableFiller extends PreorderJmmVisitor<JmmSymbolTableBuild
                         .filter(node->node.getKind().equals("Parameter"))
                         .collect(Collectors.toList());
 
+
+
+        //field = Type, ID -> New Symbol(AstUtils.buildType(Type type)
         var paramSymbols = params.stream()
                         .map(param -> new Symbol(AstUtils.buildType(param.getJmmChild(0)), param.getJmmChild(1).get("name")))
                 .collect(Collectors.toList());

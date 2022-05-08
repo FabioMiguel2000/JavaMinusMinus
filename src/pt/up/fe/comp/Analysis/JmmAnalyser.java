@@ -18,8 +18,15 @@ public class JmmAnalyser implements JmmAnalysis {
         var symbolTable = new JmmSymbolTableBuilder();
 
         var symbolTableFiller = new JmmSymbolTableFiller();
-        symbolTableFiller.visit(parserResult.getRootNode(), symbolTable);
+
+        symbolTableFiller.visit(parserResult.getRootNode(), symbolTable); // Fills the information for symbolTable
+
+        //TODO: Semantic analysis
+
+
         reports.addAll(symbolTableFiller.getReports());
+
+
 
 
         return new JmmSemanticsResult(parserResult, symbolTable, reports);

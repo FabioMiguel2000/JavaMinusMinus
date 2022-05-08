@@ -12,6 +12,7 @@ public class JmmSymbolTableBuilder implements SymbolTable {
     private String superClass;
     private final List<String> methods;
     private final Map<String,Type> methodReturnTypes;
+    private final List<Symbol> fields;
     private final Map<String, List<Symbol>> methodParams;
 
     public JmmSymbolTableBuilder() {
@@ -21,6 +22,7 @@ public class JmmSymbolTableBuilder implements SymbolTable {
         this.methods = new ArrayList<>();
         this.methodReturnTypes = new HashMap<>();
         this.methodParams = new HashMap<>();
+        this.fields = new ArrayList<>();
     }
 
 
@@ -52,8 +54,13 @@ public class JmmSymbolTableBuilder implements SymbolTable {
 
     @Override
     public List<Symbol> getFields() {
-        return Collections.emptyList();
+
+        return this.fields;
     }
+
+//    public void addField(){
+//
+//    }
 
     @Override
     public List<String> getMethods() {
@@ -68,7 +75,6 @@ public class JmmSymbolTableBuilder implements SymbolTable {
         this.methods.add(methodSignature);
         this.methodReturnTypes.put(methodSignature, returnType);
         this.methodParams.put(methodSignature, params);
-
     }
 
     @Override
