@@ -14,6 +14,7 @@ public class JmmSymbolTableBuilder implements SymbolTable {
     private final Map<String,Type> methodReturnTypes;
     private final List<Symbol> fields;
     private final Map<String, List<Symbol>> methodParams;
+    private final Map<String, List<Symbol>> localVariables;
 
     public JmmSymbolTableBuilder() {
         this.imports = new ArrayList<>();
@@ -23,6 +24,7 @@ public class JmmSymbolTableBuilder implements SymbolTable {
         this.methodReturnTypes = new HashMap<>();
         this.methodParams = new HashMap<>();
         this.fields = new ArrayList<>();
+        this.localVariables = new HashMap<>();
     }
 
 
@@ -58,9 +60,9 @@ public class JmmSymbolTableBuilder implements SymbolTable {
         return this.fields;
     }
 
-//    public void addField(){
-//
-//    }
+    public void addField(Symbol field){
+        this.fields.add(field);
+    }
 
     @Override
     public List<String> getMethods() {
@@ -89,6 +91,10 @@ public class JmmSymbolTableBuilder implements SymbolTable {
 
     @Override
     public List<Symbol> getLocalVariables(String methodSignature) {
-        return Collections.emptyList();
+        return this.localVariables.get(methodSignature);
+    }
+
+    public void addLocalVariables(String methodSignature, List<Symbol> localVariables){
+        this.localVariables.put(methodSignature, localVariables);
     }
 }

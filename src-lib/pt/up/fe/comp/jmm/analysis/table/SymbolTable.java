@@ -97,7 +97,20 @@ public interface SymbolTable {
             // builder.append(paramsString + ")\n");
             builder.append("; params: ").append(paramsString);
             builder.append("\n");
+
+            var localVariables = getLocalVariables(method);
+            builder.append("\n\t - Local Varibles:  " + localVariables.size() + "\n");
+
+            if (localVariables.isEmpty()) {
+                builder.append(" \t<no Variables>\n");
+            } else {
+                builder.append("\n");
+                localVariables.forEach(localVariable -> builder.append(" \t\t- " + localVariable.print() + "\n"));
+            }
+
         }
+
+
 
         return builder.toString();
     }

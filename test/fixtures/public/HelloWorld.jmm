@@ -3,7 +3,12 @@ import BoardBase;
 import java.io.File;
 
 class HelloWorld extends BoardBase{
+    String field1;
+    String field2;
 	public static void main(String[] args) {
+	    String field3;
+
 		ioPlus.printHelloWorld();
+		String field4;
 	}
 }

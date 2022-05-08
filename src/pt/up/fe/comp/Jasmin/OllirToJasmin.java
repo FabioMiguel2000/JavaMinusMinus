@@ -172,7 +172,7 @@ public class OllirToJasmin {
     public String getJasminType(Type type){
 
         if(type instanceof ArrayType){
-            return "[" + getJasminType(((ArrayType) type).getTypeOfElement());
+            return "[" + getJasminType(((ArrayType) type).getTypeOfElements());
         }
         return getJasminType(type.getTypeOfElement());
     }
@@ -181,6 +181,7 @@ public class OllirToJasmin {
 
     public String getJasminType(ElementType type) {
         //TODO: adicionando os outros casos que faltam a medida que for testando
+        System.out.println();
         switch (type){
             case STRING:
                 return "Ljava/lang/String;";

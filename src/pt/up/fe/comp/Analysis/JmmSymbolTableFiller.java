@@ -26,6 +26,7 @@ public class JmmSymbolTableFiller extends PreorderJmmVisitor<JmmSymbolTableBuild
         addVisit(AstNode.IMPORT_DECLARATION, this::importDeclVisit); //Every time IMPORT_DECL is seen it will call the `this::importDeclVisit` method
         addVisit(AstNode.CLASS_DECLARATION, this::classDeclVisit); //Every time CLASS_DECL is seen it will call the `this::ClassDeclVisit` method
         addVisit(AstNode.METHOD_DECLARATION, this::methodDeclVisit); //Every time METHOD_DECL is seen it will call the `this::methodDeclVisit` method
+//        addVisit(AstNode.)
     }
 
     public List<Report> getReports() {
@@ -51,6 +52,14 @@ public class JmmSymbolTableFiller extends PreorderJmmVisitor<JmmSymbolTableBuild
 
         symbolTable.setClassName(className);
 
+        // Class Fields
+        var fields = classDecl.getChildren().stream()
+                .filter(element -> element.getKind().equals("VarDeclaration"))
+                .collect(Collectors.toList());
+
+        for(var field : fields){
+            symbolTable.addField(new Symbol(new Type(field.getJmmChild(0).get("name"), field.getJmmChild(0).get("isArray").equals("true")), field.getJmmChild(1).get("name")));
+        }
 
         return 0;
     }
@@ -70,15 +79,28 @@ public class JmmSymbolTableFiller extends PreorderJmmVisitor<JmmSymbolTableBuild
                         .filter(node->node.getKind().equals("Parameter"))
                         .collect(Collectors.toList());
 
-
-
-        //field = Type, ID -> New Symbol(AstUtils.buildType(Type type)
         var paramSymbols = params.stream()
                         .map(param -> new Symbol(AstUtils.buildType(param.getJmmChild(0)), param.getJmmChild(1).get("name")))
                 .collect(Collectors.toList());
 
         symbolTable.addMethod(methodName, returnType, paramSymbols);
 
+        // Local Variables
+        var localVariables = methodDecl.getChildren().stream()
+                .filter(element -> element.getKind().equals("VarDeclaration"))
+                .map(element -> new Symbol(new Type(element.getJmmChild(0).get("name"), element.getJmmChild(0).get("isArray").equals("true")), element.getJmmChild(1).get("name")))
+                .collect(Collectors.toList());
+
+        symbolTable.addLocalVariables(methodName, localVariables);
+
+//        List<Symbol> localVariablesSymbol;
+//        for(var field : fields){
+//            symbolTable.addLocalVariables(new Symbol(new Type(field.getJmmChild(0).get("name"), field.getJmmChild(0).get("isArray").equals("true")), field.getJmmChild(1).get("name")));
+//        }
+
+
         return 0;
     }
+
+
 }
