@@ -1,6 +1,7 @@
 package pt.up.fe.comp.Analysis;
 
 
+import pt.up.fe.comp.Analysis.Analysers.ArrayAccessIsDoneOverArray;
 import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
@@ -8,6 +9,7 @@ import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.Analysis.Analysers.SingleMain;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class JmmAnalyser implements JmmAnalysis { 
@@ -21,7 +23,13 @@ public class JmmAnalyser implements JmmAnalysis {
         symbolTableFiller.visit(parserResult.getRootNode(), symbolTable);
         reports.addAll(symbolTableFiller.getReports());
 
-        reports.addAll(new SingleMain(symbolTable).getReports());
+        List<SemanticAnalyser> analysers = Arrays.asList(
+                new SingleMain(symbolTable),
+                new ArrayAccessIsDoneOverArray(symbolTable));
+
+        for(var analyser : analysers){
+            reports.addAll(analyser.getReports());
+        }
 
         return new JmmSemanticsResult(parserResult, symbolTable, reports);
 
