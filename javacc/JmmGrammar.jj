@@ -183,14 +183,19 @@ IfElseStatement:
 	IfStatement ElseStatement
 ;
 IfStatement:
-	<IF> <OPEN_PAREN> Expression #IfCondition <CLOSE_PAREN> Statement
+	<IF> <OPEN_PAREN> Expression <CLOSE_PAREN> Statement
 ;
 ElseStatement:
 	<ELSE> Statement
 ;
 
-ScopeStatement:
-	( <OPEN_CURLY_BRACKET> (Statement)* <CLOSE_CURLY_BRACKET> )
+ScopeStatement #void:
+	( <OPEN_CURLY_BRACKET> (
+		ScopeStatement |
+    	( IfElseStatement ) |
+    	( WhileStatement ) |
+    	( Expression (Assignment)? <SEMICOLON> )
+	)* <CLOSE_CURLY_BRACKET> )
 ;
 
 Assignment #void:

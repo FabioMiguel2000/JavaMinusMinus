@@ -5,10 +5,24 @@ import java.io.File;
 class HelloWorld extends BoardBase{
     String field1;
     String field2;
+    int a;
 	public static void main(String[] args) {
 	    String field3;
 
-		ioPlus.printHelloWorld();
+        BoardBase b;
+
+        b = new BoardBase();
+        if(b < 1){
+            b = new BoardBase();
+        }
+        else{
+            b = new BoardBase();
+        }
+
+        b.chapeu();
+
+		a = ioPlus.printHelloWorld();
+
 		String field4;
 	}
 }

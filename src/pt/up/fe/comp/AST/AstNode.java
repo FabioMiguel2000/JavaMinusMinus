@@ -9,7 +9,13 @@ public enum AstNode {
     METHOD_DECLARATION,
     STATEMENT,
     CALL_EXPRESSION,
+    ASSIGNMENT,
+    OBJECT_CREATION_EXPRESSION,
+    VAR_DECLARATION,
+    IF_ELSE_STATEMENT,
     ARGUMENTS,
+    BIN_OP,
+    LITERAL,
     ID;
 
     private final String name;
