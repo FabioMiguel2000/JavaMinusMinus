@@ -5,9 +5,9 @@ import pt.up.fe.specs.util.SpecsIo;
 public class AnalysisTest {
     @Test
     public void test(){
-        var result = TestUtils.parse(SpecsIo.getResource("fixtures/public/HelloWorld.jmm"));
+        var result = TestUtils.parse(SpecsIo.getResource("fixtures/public/FindMaximum.jmm"));
         System.out.println(result.getRootNode().toTree());
-        var result2 = TestUtils.analyse(SpecsIo.getResource("fixtures/public/HelloWorld.jmm")); // Calls JmmAnalyser semanticAnalysis()
+        var result2 = TestUtils.analyse(SpecsIo.getResource("fixtures/public/FindMaximum.jmm")); // Calls JmmAnalyser semanticAnalysis()
         System.out.println("SymbolTable: \n" + result2.getSymbolTable().print());
         TestUtils.noErrors(result2);
     }

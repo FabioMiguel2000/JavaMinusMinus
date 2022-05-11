@@ -10,7 +10,10 @@ public enum AstNode {
     STATEMENT,
     CALL_EXPRESSION,
     ARGUMENTS,
-    ID;
+    ID,
+    ASSIGNMENT,
+    VAR_DECLARATION,
+    ARRAY_ACCESS_EXPRESSION;
 
     private final String name;
 
