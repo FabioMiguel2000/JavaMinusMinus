@@ -25,6 +25,7 @@ import pt.up.fe.specs.util.SpecsIo;
 
 public class Cp2Test {
 
+
     public static void testOllirToJasmin(String resource, String expectedOutput) {
         // If AstToJasmin pipeline, do not execute test
         if (TestUtils.hasAstToJasminClass()) {

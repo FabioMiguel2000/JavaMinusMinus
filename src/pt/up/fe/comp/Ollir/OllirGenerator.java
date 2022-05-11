@@ -2,22 +2,24 @@ package pt.up.fe.comp.Ollir;
 
 import pt.up.fe.comp.AST.AstNode;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
+import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.specs.util.exceptions.NotImplementedException;
 
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     private final StringBuilder code;
     private final SymbolTable symbolTable;
-    private boolean ifLoop;
+    private int ifCounter;
 
     public OllirGenerator(SymbolTable symbolTable){
         this.code = new StringBuilder();
         this.symbolTable = symbolTable;
-        ifLoop = false;
+        ifCounter = 0;
 
         addVisit(AstNode.PROGRAM, this::programVisit);
         addVisit(AstNode.CLASS_DECLARATION, this::classDeclVisit);
@@ -81,7 +83,9 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
             code.append("static ");
         }
 
-        code.append("main(");
+        code.append(methodSignature).append("(");
+
+//        code.append("main(");
 
         var params = symbolTable.getParameters(methodSignature);
 
@@ -108,7 +112,10 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         for(var stmt: stmts){
             visit(stmt);
         }
+        if(methodSignature.equals("main")){
+            code.append("ret.V;\n");
 
+        }
         code.append("}\n");
 
         return 0;
@@ -125,31 +132,31 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         return 0;
     }
     public Integer ifElseStmtDeclaration(JmmNode ifElseStmt, Integer dummy){
+        int localIfCounter = ifCounter++;
+
         var ifStmt = ifElseStmt.getJmmChild(0);
         var elseStmt = ifElseStmt.getJmmChild(1);
         code.append("if(");
-
         var ifConditionNode = ifStmt.getJmmChild(0); // if ( THIS PART )
         var ifScope = ifStmt.getJmmChild(1); // if(){ THIS PART }
         if(ifConditionNode.getKind().equals(AstNode.BIN_OP.toString()) && ifConditionNode.get("value").equals("<")) {
-            System.out.println("entrou");
             visit(ifConditionNode.getJmmChild(0));
-            code.append(">=");
+            code.append(".i32");    //need to change, hard coded
+            code.append(" >=.bool ");
             visit(ifConditionNode.getJmmChild(1));
         }
         else{
-            System.out.println("nao entrou");
             visit(ifConditionNode);
         }
 
-
-        code.append(") goto else;\n");
+        code.append(") goto else_" + localIfCounter +";\n");
         visit(ifScope);
-        code.append("goto endif;\n");
-        code.append("else:\n");
+        code.append("goto endif_" +localIfCounter + ";\n");
+        code.append("else_"+localIfCounter+":\n");
         visit(elseStmt.getJmmChild(0));
 
-        code.append("endif:\n");
+        code.append("endif_"+localIfCounter +":\n");
+
 
         return 0;
     }
@@ -192,6 +199,14 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
             }
         }
 
+        var params = symbolTable.getParameters(parentMethod.get("name"));
+
+        for(var param: params){
+            if(param.equals(callExpr.getJmmChild(0).get("name"))){
+                return "invokevirtual";
+            }
+        }
+
         var imports = symbolTable.getImports();
         for(int i = 0; i < imports.size(); i++){
             if(imports.get(i).equals(callExpr.getJmmChild(0).get("name"))){
@@ -215,44 +230,25 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
         visit(callExpr.getJmmChild(0));
         if(invokeType.equals("invokevirtual")){
-            code.append(".")
-                    .append(getFieldOrLocalVarType(callExpr.getJmmChild(0).get("name"), OllirUtils.getPreviousNode(callExpr.getJmmChild(0), AstNode.METHOD_DECLARATION)));
+            var type = getVariableStringByName(callExpr.getJmmChild(0).get("name"), OllirUtils.getPreviousNode(callExpr.getJmmChild(0), AstNode.METHOD_DECLARATION)).get(1);
+            code.append(type);
         }
         // TODO: RESOLVER PRIMEIRO A DUVIDA DE CALLEXPRESSION
         code.append(", \"");
         visit(callExpr.getJmmChild(1));
         code.append("\"");
         visit(callExpr.getJmmChild(2));
-        code.append(").");
-
+        code.append(")");
 
         var parentNode = callExpr.getJmmParent();
 
         if(parentNode.getKind().equals(AstNode.ASSIGNMENT.toString())){
-            var parentMethod = OllirUtils.getPreviousNode(callExpr, AstNode.METHOD_DECLARATION);
-            var localVars = symbolTable.getLocalVariables(parentMethod.get("name"));
-            String type;
-            for (var localVar: localVars) {
-                if(localVar.getName().equals(parentNode.getJmmChild(0).get("name"))){
+            var type = getVariableStringByName(parentNode.getJmmChild(0).get("name"), parentNode).get(1);
+            code.append(type);
 
-                    type = OllirUtils.getOllirType(localVar.getType().getName());
-                    code.append(OllirUtils.getOllirType(type));
-                    return 0;
-                }
-            }
-
-            var fields = symbolTable.getFields();
-
-            for(var field : fields){
-                if(field.getName().equals(parentNode.getJmmChild(0).get("name"))){
-                    type = OllirUtils.getOllirType(field.getType().getName());
-                    code.append(OllirUtils.getOllirType(type));
-                    return 0;
-                }
-            }
         }
         else{
-            code.append("V");
+            code.append(".V");
         }
 
         return 0;
@@ -267,12 +263,18 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         return 0;
     }
 
-    public String getFieldOrLocalVarType(String name, JmmNode methodNode){
-        var localVars = symbolTable.getLocalVariables(methodNode.get("name"));
-        String type;
+    // returns with array with [name, type]
+    // example: ["varName", ".i32"], ["$1.varName", ".i32"]
+    public ArrayList<String> getVariableStringByName(String name, JmmNode currentNode){
+        var parentMethodNode = OllirUtils.getPreviousNode(currentNode, AstNode.METHOD_DECLARATION);
+        var localVars = symbolTable.getLocalVariables(parentMethodNode.get("name"));
+        var methodParameters = symbolTable.getParameters(parentMethodNode.get("name"));
+        var result = new ArrayList<String>();
         for (var localVar: localVars) {
             if(localVar.getName().equals(name)){
-                return localVar.getType().getName();
+                result.add(name);
+                result.add("." + OllirUtils.getOllirType(localVar.getType().getName()));
+                return result;
             }
         }
 
@@ -280,22 +282,33 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
         for(var field : fields){
             if(field.getName().equals(name)){
-                return field.getType().getName();
+                result.add(name);
+                result.add("." + OllirUtils.getOllirType(field.getType().getName()));
+                return result;
             }
         }
-        return "";
+
+        int counter = 1;
+        for(var methodParam: methodParameters){
+            if(methodParam.getName().equals(name)){
+                result.add("$" +counter+"."+ name);
+                result.add("." + OllirUtils.getOllirType(methodParam.getType().getName()));
+                return result;
+            }
+            counter ++;
+        }
+
+        return result;
     }
 
     public Integer assignmentVisit(JmmNode arguments, Integer dummy){
 
         var name = arguments.getJmmChild(0).get("name");
 
-        var ParentMethod = OllirUtils.getPreviousNode(arguments, AstNode.METHOD_DECLARATION);
-        var typeString = getFieldOrLocalVarType(name, ParentMethod);
-        var type = OllirUtils.getOllirType(typeString);
+        var leftHandVar = getVariableStringByName(name, arguments);
 
-        code.append(name).append(".").append(type);
-        code.append(" :=.").append(type).append(" ");
+        code.append(leftHandVar.get(0)).append(leftHandVar.get(1));
+        code.append(" :=").append(leftHandVar.get(1)).append(" ");
 
         var rightHandNode = arguments.getJmmChild(1);
 
@@ -315,12 +328,9 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
 
     public Integer idVisit(JmmNode id, Integer dummy) {
-//        var type = getFieldOrLocalVarType(id.get("name"), OllirUtils.getPreviousNode(id, AstNode.METHOD_DECLARATION));
 
         code.append(id.get("name"));
-//        if(type!=null){
-//            code.append(".").append(type);
-//        }
+
         return 0;
     }
 

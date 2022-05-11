@@ -14,4 +14,24 @@ public class OptimizationTest {
         var ollirResult = TestUtils.optimize(SpecsIo.getResource("fixtures/public/HelloWorld.jmm"));
         TestUtils.noErrors(ollirResult);
     }
+    @Test
+    public void test1(){
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test1.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
+    @Test
+    public void test2(){
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test2.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
+    @Test
+    public void test3(){
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test3.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
+    @Test
+    public void test4(){
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test4.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
 }

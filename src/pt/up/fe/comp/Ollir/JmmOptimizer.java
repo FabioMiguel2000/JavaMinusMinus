@@ -27,11 +27,9 @@ public class JmmOptimizer implements JmmOptimization {
 //                "import java.io.File;\n" +
 //                "public HelloWorld extends BoardBase {\n" +
 //                ".method public static main(args.array.String).V {\n" +
-//                "b.BoardBase :=.BoardBase new(BoardBase).BoardBase;\n" +
-//                "invokevirtual(b.BoardBase, \"chapeu\").V;\n" +
-//                "a.i32 :=.i32 invokestatic(ioPlus, \"printHelloWorld\").i32;\n" +
+//                "a.i32 :=.i32 1.i32 +.i32 2.i32;\n" +
 //                "}\n" +
-//                "}";
+//                " }";
 
         System.out.println("OLLIR CODE: \n" + ollirCode);
 
