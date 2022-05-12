@@ -3,8 +3,8 @@ import BoardBase;
 import java.io.File;
 
 class HelloWorld extends BoardBase{
-
 	public static void main(String[] args) {
-		ioPlus.printHelloWorld();
+        int a;
+        a = (1 + 2) * 2;
 	}
 }
