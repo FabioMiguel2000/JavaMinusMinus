@@ -1,0 +1,29 @@
+import ioPlus;
+import BoardBase;
+import java.io.File;
+
+class HelloWorld extends BoardBase{
+    String field1;
+    String field2;
+    int a;
+	public static void main(String[] args) {
+	    String field3;
+
+        BoardBase b;
+
+        b = new BoardBase();
+
+        if(a < 1){
+            b = new BoardBase();
+        }
+        else{
+            b = new BoardBase();
+        }
+
+        b.chapeu();
+
+		args = ioPlus.printHelloWorld();
+
+		String field4;
+	}
+}

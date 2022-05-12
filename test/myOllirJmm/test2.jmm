@@ -3,8 +3,16 @@ import BoardBase;
 import java.io.File;
 
 class HelloWorld extends BoardBase{
-
 	public static void main(String[] args) {
-		ioPlus.printHelloWorld();
+        int a;
+
+        if(a < 1){
+            a = 3;
+        }
+        else{
+            a = 4;
+        }
+
+
 	}
 }
