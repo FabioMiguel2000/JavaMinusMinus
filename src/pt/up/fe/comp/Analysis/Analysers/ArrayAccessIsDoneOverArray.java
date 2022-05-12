@@ -31,10 +31,7 @@ public class ArrayAccessIsDoneOverArray extends PreorderJmmVisitor<Integer, Inte
 
         String arrName = node.getJmmChild(0).get("name");
 
-        // TODO Chamar metodo já criado de backtrack de AST para os metodos
         var tempMethod = AstUtils.getPreviousNode(node, AstNode.METHOD_DECLARATION).get("name");
-        var methods = symbolTable.getMethods();
-        JmmNode methodNode;
 
         for (var localVariable :symbolTable.getLocalVariables(tempMethod)) {
             if(localVariable.getName().equals(arrName))

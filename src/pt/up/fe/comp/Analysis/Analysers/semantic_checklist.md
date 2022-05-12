@@ -14,7 +14,7 @@ The following are the analyses that we will test and that must report an error.
 - [ ] Operands of an operation must types compatible with the operation (e.g. int + boolean is an error because + expects two integers.)
 - [ ] Array cannot be used in arithmetic operations (e.g. array1 + array2 is an error)
 - [X] Array access is done over an array
-- [ ] Array access index is an expression of type integer
+- [X] Array access index is an expression of type integer
 - [ ] Type of the assignee must be compatible with the assigned (an_int = a_bool is an error)
 - [ ] Expressions in conditions must return a boolean (if(2+3) is an error)
 

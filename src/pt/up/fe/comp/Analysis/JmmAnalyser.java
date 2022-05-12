@@ -2,6 +2,7 @@ package pt.up.fe.comp.Analysis;
 
 
 import pt.up.fe.comp.Analysis.Analysers.ArrayAccessIsDoneOverArray;
+import pt.up.fe.comp.Analysis.Analysers.ArrayIndexIsTypeInteger;
 import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
@@ -27,7 +28,9 @@ public class JmmAnalyser implements JmmAnalysis {
 
         List<SemanticAnalyser> analysers = Arrays.asList(
                 new SingleMain(symbolTable),
-                new ArrayAccessIsDoneOverArray(symbolTable, parserResult.getRootNode()));
+                new ArrayAccessIsDoneOverArray(symbolTable, parserResult.getRootNode()),
+                new ArrayIndexIsTypeInteger(symbolTable, parserResult.getRootNode())
+        );
 
         for(var analyser : analysers){
             reports.addAll(analyser.getReports());
