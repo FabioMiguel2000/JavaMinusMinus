@@ -28,7 +28,6 @@ public enum AstNode {
     STATEMENT,
     TYPE,
     VAR_DECLARATION,
-    WHILE_CONDITION,
     WHILE_STATEMENT;
 
     private final String name;

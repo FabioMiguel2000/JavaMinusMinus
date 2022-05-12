@@ -176,7 +176,7 @@ ArrayAccess:
 ;
 
 WhileStatement:
-	<WHILE> <OPEN_PAREN> Expression #WhileCondition <CLOSE_PAREN> Statement
+	<WHILE> <OPEN_PAREN> Expression <CLOSE_PAREN> Statement
 ;
 
 IfElseStatement:
@@ -207,7 +207,7 @@ Expression #void:
 ;
 
 AndExpression #void:
-	LessThanExpression ((<AND_OP> LessThanExpression { jjtThis.put("value", "&&");}) #BinOp(2))* 
+	LessThanExpression ((<AND_OP> LessThanExpression { jjtThis.put("value", "&&");}) #BinOp(2))*
 ;
 
 LessThanExpression #void:
@@ -217,16 +217,16 @@ LessThanExpression #void:
 AdditiveExpression #void:
 	MultiplicativeExpression
 	(
-		( (<PLUS> MultiplicativeExpression) ({ jjtThis.put("op", "add"); }) #BinOp(2)) 
-		| ((<MINUS> MultiplicativeExpression)({ jjtThis.put("op", "sub"); }) #BinOp(2))
+		( (<PLUS> MultiplicativeExpression) ({ jjtThis.put("value", "add"); }) #BinOp(2))
+		| ((<MINUS> MultiplicativeExpression)({ jjtThis.put("value", "sub"); }) #BinOp(2))
 	)*
 ;
 
 MultiplicativeExpression #void:
 	NotExpression
 	(
-		((<DIVIDE> NotExpression { jjtThis.put("op", "/"); })#BinOp(2) 
-		| (<TIMES> NotExpression { jjtThis.put("op", "*"); })#BinOp(2))
+		((<DIVIDE> NotExpression { jjtThis.put("value", "/"); })#BinOp(2)
+		| (<TIMES> NotExpression { jjtThis.put("value", "*"); })#BinOp(2))
 	)*
 ;
 

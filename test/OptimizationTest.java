@@ -49,4 +49,11 @@ public class OptimizationTest {
         var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test7.jmm"));
         TestUtils.noErrors(ollirResult);
     }
+    @Test
+    public void test8(){
+        var result = TestUtils.parse(SpecsIo.getResource("myOllirJmm/test8.jmm"));
+        System.out.println(result.getRootNode().toTree());
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test8.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
 }

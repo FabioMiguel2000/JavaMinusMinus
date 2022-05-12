@@ -15,11 +15,13 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     private final StringBuilder code;
     private final SymbolTable symbolTable;
     private int ifCounter;
+    private int loopCounter;
 
     public OllirGenerator(SymbolTable symbolTable){
         this.code = new StringBuilder();
         this.symbolTable = symbolTable;
         ifCounter = 0;
+        loopCounter = 0;
 
         addVisit(AstNode.PROGRAM, this::programVisit);
         addVisit(AstNode.CLASS_DECLARATION, this::classDeclVisit);
@@ -33,6 +35,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         addVisit(AstNode.VAR_DECLARATION, this::varDeclaration);
         addVisit(AstNode.IF_ELSE_STATEMENT, this::ifElseStmtDeclaration);
         addVisit(AstNode.LITERAL, this::literalVisit);
+        addVisit(AstNode.WHILE_STATEMENT, this::whileVisit);
 
 //        addVisit(AstNode.);
 
@@ -134,6 +137,16 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
         return 0;
     }
+    public Integer whileVisit(JmmNode whileNode, Integer dummy){
+        int localLoopCounter = loopCounter++;
+
+
+
+
+        return 0;
+    }
+
+
     public Integer ifElseStmtDeclaration(JmmNode ifElseStmt, Integer dummy){
         int localIfCounter = ifCounter++;
 
@@ -163,6 +176,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
         return 0;
     }
+
+
     public Integer literalVisit(JmmNode literalNode, Integer dummy){
         code.append(literalNode.get("value")).append(".");
         code.append(OllirUtils.getOllirType(literalNode.get("type")));
@@ -304,30 +319,48 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         return result;
     }
 
-    public Integer assignmentVisit(JmmNode assignmentNode, Integer dummy){
-        if(assignmentNode.getJmmChild(0).getKind().equals(AstNode.BIN_OP.toString()) ||
-                assignmentNode.getJmmChild(1).getKind().equals(AstNode.BIN_OP.toString())){
-            var ollirOp = new OllirThreeAddressCoder();
 
-            var threeAdressCode = ollirOp.visit(assignmentNode).get(0);
-            code.append(threeAdressCode);
+    public Integer assignmentVisit(JmmNode assignmentNode, Integer dummy){
+//        var depth = OllirUtils.getMaxDepth(assignmentNode);
+//        System.out.println("depth = " + depth);
+//        if(OllirUtils.getMaxDepth(assignmentNode) >= 0){
+//
+//        }
+//        if(assignmentNode.getJmmChild(0).getKind().equals(AstNode.BIN_OP.toString()) ||
+//                assignmentNode.getJmmChild(1).getKind().equals(AstNode.BIN_OP.toString())){
+//            var ollirOp = new OllirThreeAddressCoder();
+//
+//            var threeAdressCode = ollirOp.visit(assignmentNode).get(0);
+//            code.append(threeAdressCode);
+//
+//            return 0;
+//        }
+
+        if(assignmentNode.getJmmChild(1).getKind().equals(AstNode.OBJECT_CREATION_EXPRESSION.toString()) ||
+                assignmentNode.getJmmChild(1).getKind().equals(AstNode.CALL_EXPRESSION.toString())){
+            var name = assignmentNode.getJmmChild(0).get("name");
+
+            var leftHandVar = getVariableStringByName(name, assignmentNode);
+
+            code.append(leftHandVar.get(0)).append(leftHandVar.get(1));
+            code.append(" :=").append(leftHandVar.get(1)).append(" ");
+
+            var rightHandNode = assignmentNode.getJmmChild(1);
+
+            visit(rightHandNode);
+
+            code.append(";\n");
 
             return 0;
         }
-        var name = assignmentNode.getJmmChild(0).get("name");
 
-        var leftHandVar = getVariableStringByName(name, assignmentNode);
+        var ollirOp = new OllirThreeAddressCoder(symbolTable);
 
-        code.append(leftHandVar.get(0)).append(leftHandVar.get(1));
-        code.append(" :=").append(leftHandVar.get(1)).append(" ");
-
-        var rightHandNode = assignmentNode.getJmmChild(1);
-
-        visit(rightHandNode);
-
-        code.append(";\n");
+        var threeAdressCode = ollirOp.visit(assignmentNode).get(0);
+        code.append(threeAdressCode);
 
         return 0;
+
     }
 
     public Integer argumentsVisit(JmmNode arguments, Integer dummy) {

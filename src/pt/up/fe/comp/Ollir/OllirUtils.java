@@ -5,6 +5,10 @@ import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class OllirUtils {
     public OllirUtils(){
 
@@ -32,10 +36,24 @@ public class OllirUtils {
                 return "V";
             case "int":
                 return "i32";
+            case "boolean":
+                return "bool";
             default:
                 return jmmType;
         }
 
+    }
+    public static int getMaxDepth(JmmNode currentNode){
+
+        if (currentNode == null){
+            return 0;
+        }
+        List<Integer> depths = new ArrayList<Integer>();
+        depths.add(0);
+        for(var child: currentNode.getChildren()){
+            depths.add(getMaxDepth(child));
+        }
+        return Collections.max(depths, null)+1;
     }
 
 }
