@@ -1,6 +1,7 @@
 package pt.up.fe.comp.Ollir;
 
 import pt.up.fe.comp.AST.AstNode;
+import pt.up.fe.comp.AST.AstUtils;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
@@ -180,7 +181,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
 
     public String getInvokeCode(JmmNode callExpr){
-        var parentMethod = OllirUtils.getPreviousNode(callExpr, AstNode.METHOD_DECLARATION);
+        var parentMethod = AstUtils.getPreviousNode(callExpr, AstNode.METHOD_DECLARATION);
 
         var localVars = symbolTable.getLocalVariables(parentMethod.get("name"));
 
@@ -230,7 +231,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
         visit(callExpr.getJmmChild(0));
         if(invokeType.equals("invokevirtual")){
-            var type = getVariableStringByName(callExpr.getJmmChild(0).get("name"), OllirUtils.getPreviousNode(callExpr.getJmmChild(0), AstNode.METHOD_DECLARATION)).get(1);
+            var type = getVariableStringByName(callExpr.getJmmChild(0).get("name"), AstUtils.getPreviousNode(callExpr.getJmmChild(0), AstNode.METHOD_DECLARATION)).get(1);
             code.append(type);
         }
         // TODO: RESOLVER PRIMEIRO A DUVIDA DE CALLEXPRESSION
@@ -266,7 +267,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     // returns with array with [name, type]
     // example: ["varName", ".i32"], ["$1.varName", ".i32"]
     public ArrayList<String> getVariableStringByName(String name, JmmNode currentNode){
-        var parentMethodNode = OllirUtils.getPreviousNode(currentNode, AstNode.METHOD_DECLARATION);
+        var parentMethodNode = AstUtils.getPreviousNode(currentNode, AstNode.METHOD_DECLARATION);
         var localVars = symbolTable.getLocalVariables(parentMethodNode.get("name"));
         var methodParameters = symbolTable.getParameters(parentMethodNode.get("name"));
         var result = new ArrayList<String>();

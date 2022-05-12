@@ -16,4 +16,14 @@ public class AstUtils {
 
         return new Type(typeName, isArray);
     }
+
+    public static JmmNode getPreviousNode(JmmNode node, AstNode type){
+        var currentNode = node;
+
+        while(!currentNode.getKind().equals(type.toString())){
+            currentNode = currentNode.getJmmParent();
+        }
+
+        return currentNode;
+    }
 }
