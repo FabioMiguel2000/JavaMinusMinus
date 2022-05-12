@@ -41,6 +41,7 @@ public class ArrayAccessIsDoneOverArray extends PreorderJmmVisitor<Integer, Inte
                 if(!localVariable.getType().isArray()){
                     this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, -1, -1,
                             "LOCAL VARIABLE Var access must be done over array")); // TODO line and col nr
+                }else{
                     return 0;
                 }
 
@@ -50,6 +51,7 @@ public class ArrayAccessIsDoneOverArray extends PreorderJmmVisitor<Integer, Inte
                 if(!localParam.getType().isArray()){
                     this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, -1, -1,
                             "LOCAL PARAMS Var access must be done over array")); // TODO line and col nr
+                }else{
                     return 0;
                 }
         }
@@ -58,16 +60,19 @@ public class ArrayAccessIsDoneOverArray extends PreorderJmmVisitor<Integer, Inte
         var fields = symbolTable.getFields();
 
         for (var f:fields )
-            if(arrName.equals(f.getName()))
+            if(arrName.equals(f.getName())){
                 if(!f.getType().isArray()){
-                        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, -1, -1,
-                                "FIELDSVar access must be done over array")); // TODO line and col nr
-                        return 0;
+                    this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, -1, -1,
+                            "LOCAL PARAMS Var access must be done over array")); // TODO line and col nr
+                }else{
+                    return 0;
                 }
+            }
 
 
 
-        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, -1, -1,
+
+        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.valueOf(node.get("line")), Integer.valueOf(node.get("col")),
                 "Var access must be done over array"));
         return 0;
     }
