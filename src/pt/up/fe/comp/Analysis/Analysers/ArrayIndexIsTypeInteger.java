@@ -61,7 +61,6 @@ class SearchChild extends PreorderJmmVisitor<Integer, Integer>{
         if(!isValid)
             return 0;
 
-        //System.out.println(node + "\t" + node.get("op"));
         try {
             node.get("op");
         }catch (Exception e){
