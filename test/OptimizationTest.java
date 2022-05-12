@@ -39,4 +39,14 @@ public class OptimizationTest {
         var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test5.jmm"));
         TestUtils.noErrors(ollirResult);
     }
+    @Test
+    public void test6(){
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test6.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
+    @Test
+    public void test7(){
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test7.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
 }

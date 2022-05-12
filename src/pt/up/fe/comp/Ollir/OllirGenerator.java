@@ -304,24 +304,28 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         return result;
     }
 
-    public Integer assignmentVisit(JmmNode arguments, Integer dummy){
+    public Integer assignmentVisit(JmmNode assignmentNode, Integer dummy){
+        if(assignmentNode.getJmmChild(0).getKind().equals(AstNode.BIN_OP.toString()) ||
+                assignmentNode.getJmmChild(1).getKind().equals(AstNode.BIN_OP.toString())){
+            var ollirOp = new OllirThreeAddressCoder();
 
-        var ollirOp = new OllirThreeAddressCoder();
+            var threeAdressCode = ollirOp.visit(assignmentNode).get(0);
+            code.append(threeAdressCode);
 
-        var threeAdressCode = ollirOp.visit(arguments).get(0);
+            return 0;
+        }
+        var name = assignmentNode.getJmmChild(0).get("name");
 
-//        var name = arguments.getJmmChild(0).get("name");
-//
-//        var leftHandVar = getVariableStringByName(name, arguments);
-//
-//        code.append(leftHandVar.get(0)).append(leftHandVar.get(1));
-//        code.append(" :=").append(leftHandVar.get(1)).append(" ");
-//
-//        var rightHandNode = arguments.getJmmChild(1);
-//
-//        visit(rightHandNode);
+        var leftHandVar = getVariableStringByName(name, assignmentNode);
 
-        code.append(threeAdressCode);
+        code.append(leftHandVar.get(0)).append(leftHandVar.get(1));
+        code.append(" :=").append(leftHandVar.get(1)).append(" ");
+
+        var rightHandNode = assignmentNode.getJmmChild(1);
+
+        visit(rightHandNode);
+
+        code.append(";\n");
 
         return 0;
     }
