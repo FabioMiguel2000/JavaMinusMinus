@@ -22,6 +22,8 @@ public class JmmOptimizer implements JmmOptimization {
 
         var ollirCode = ollirGenerator.getCode();
 
+
+
 //        ollirCode = "import ioPlus;\n" +
 //                "import BoardBase;\n" +
 //                "import java.io.File;\n" +

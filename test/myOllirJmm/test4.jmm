@@ -17,8 +17,5 @@ class HelloWorld extends BoardBase{
         else{
             a = 4;
         }
-
-
-
 	}
 }

@@ -2,7 +2,6 @@ package pt.up.fe.comp.Ollir;
 
 import pt.up.fe.comp.AST.AstNode;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
-import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.specs.util.exceptions.NotImplementedException;
@@ -124,6 +123,9 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     public Integer stmtVisit(JmmNode stmt, Integer dummy){
         visit(stmt.getJmmChild(0));
         if(stmt.getJmmChild(0).getKind().equals(AstNode.IF_ELSE_STATEMENT.toString())){
+            return 0;
+        }
+        if(stmt.getJmmChild(0).getKind().equals(AstNode.ASSIGNMENT.toString())){
             return 0;
         }
 
@@ -303,16 +305,22 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
     public Integer assignmentVisit(JmmNode arguments, Integer dummy){
 
-        var name = arguments.getJmmChild(0).get("name");
+        var ollirOp = new OllirThreeAddressCoder();
 
-        var leftHandVar = getVariableStringByName(name, arguments);
+        var threeAdressCode = ollirOp.visit(arguments).get(0);
 
-        code.append(leftHandVar.get(0)).append(leftHandVar.get(1));
-        code.append(" :=").append(leftHandVar.get(1)).append(" ");
+//        var name = arguments.getJmmChild(0).get("name");
+//
+//        var leftHandVar = getVariableStringByName(name, arguments);
+//
+//        code.append(leftHandVar.get(0)).append(leftHandVar.get(1));
+//        code.append(" :=").append(leftHandVar.get(1)).append(" ");
+//
+//        var rightHandNode = arguments.getJmmChild(1);
+//
+//        visit(rightHandNode);
 
-        var rightHandNode = arguments.getJmmChild(1);
-
-        visit(rightHandNode);
+        code.append(threeAdressCode);
 
         return 0;
     }
