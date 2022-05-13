@@ -18,10 +18,16 @@ public class AstUtils {
     }
 
     public static JmmNode getPreviousNode(JmmNode node, AstNode type){
+
         var currentNode = node;
 
-        while(!currentNode.getKind().equals(type.toString())){
+        while(!currentNode.getKind().equals(type.toString()) &&
+                !currentNode.getKind().equals(AstNode.PROGRAM.toString())){
             currentNode = currentNode.getJmmParent();
+
+        }
+        if(currentNode.getKind().equals(AstNode.PROGRAM.toString()) && !type.equals(AstNode.PROGRAM)){
+            return null;
         }
 
         return currentNode;

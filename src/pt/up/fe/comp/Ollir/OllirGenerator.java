@@ -143,6 +143,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
 
 
+
+
         return 0;
     }
 
@@ -152,18 +154,20 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
         var ifStmt = ifElseStmt.getJmmChild(0);
         var elseStmt = ifElseStmt.getJmmChild(1);
-        code.append("if(");
+
         var ifConditionNode = ifStmt.getJmmChild(0); // if ( THIS PART )
+
+        OllirThreeAddressCoder coder = new OllirThreeAddressCoder(symbolTable);
+
+        var coditionCode = coder.visit(ifConditionNode);
+
+        code.append(coditionCode.get(0));
+
+        code.append("if(");
+
+        code.append("!.bool ").append(coditionCode.get(1));
+
         var ifScope = ifStmt.getJmmChild(1); // if(){ THIS PART }
-        if(ifConditionNode.getKind().equals(AstNode.BIN_OP.toString()) && ifConditionNode.get("value").equals("<")) {
-            visit(ifConditionNode.getJmmChild(0));
-            code.append(".i32");    //need to change, hard coded
-            code.append(" >=.bool ");
-            visit(ifConditionNode.getJmmChild(1));
-        }
-        else{
-            visit(ifConditionNode);
-        }
 
         code.append(") goto else_" + localIfCounter +";\n");
         visit(ifScope);
@@ -251,7 +255,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
             var type = getVariableStringByName(callExpr.getJmmChild(0).get("name"), AstUtils.getPreviousNode(callExpr.getJmmChild(0), AstNode.METHOD_DECLARATION)).get(1);
             code.append(type);
         }
-        // TODO: RESOLVER PRIMEIRO A DUVIDA DE CALLEXPRESSION
+
         code.append(", \"");
         visit(callExpr.getJmmChild(1));
         code.append("\"");
@@ -336,23 +340,24 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 //            return 0;
 //        }
 
-        if(assignmentNode.getJmmChild(1).getKind().equals(AstNode.OBJECT_CREATION_EXPRESSION.toString()) ||
-                assignmentNode.getJmmChild(1).getKind().equals(AstNode.CALL_EXPRESSION.toString())){
-            var name = assignmentNode.getJmmChild(0).get("name");
-
-            var leftHandVar = getVariableStringByName(name, assignmentNode);
-
-            code.append(leftHandVar.get(0)).append(leftHandVar.get(1));
-            code.append(" :=").append(leftHandVar.get(1)).append(" ");
-
-            var rightHandNode = assignmentNode.getJmmChild(1);
-
-            visit(rightHandNode);
-
-            code.append(";\n");
-
-            return 0;
-        }
+//        if(
+//                assignmentNode.getJmmChild(1).getKind().equals(AstNode.CALL_EXPRESSION.toString())){
+//
+//            var name = assignmentNode.getJmmChild(0).get("name");
+//
+//            var leftHandVar = getVariableStringByName(name, assignmentNode);
+//
+//            code.append(leftHandVar.get(0)).append(leftHandVar.get(1));
+//            code.append(" :=").append(leftHandVar.get(1)).append(" ");
+//
+//            var rightHandNode = assignmentNode.getJmmChild(1);
+//
+//            visit(rightHandNode);
+//
+//            code.append(";\n");
+//
+//            return 0;
+//        }
 
         var ollirOp = new OllirThreeAddressCoder(symbolTable);
 

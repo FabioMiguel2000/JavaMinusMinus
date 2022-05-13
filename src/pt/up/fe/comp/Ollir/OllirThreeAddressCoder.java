@@ -34,10 +34,131 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
         addVisit(AstNode.BIN_OP, this::binOPVisit);
         addVisit(AstNode.LITERAL, this::literalVisit);
         addVisit(AstNode.ID, this::idVisit);
+        addVisit(AstNode.OBJECT_CREATION_EXPRESSION, this::objectCreationExpression);
+        addVisit(AstNode.CALL_EXPRESSION, this::callExprVisitor);
+        addVisit(AstNode.ARGUMENTS, this::argumentsVisit);
 
     }
 
+    public String getInvokeCode(JmmNode callExpr){
+        var parentMethod = AstUtils.getPreviousNode(callExpr, AstNode.METHOD_DECLARATION);
 
+        var localVars = symbolTable.getLocalVariables(parentMethod.get("name"));
+
+        for (var localVar: localVars) {
+            if(localVar.getName().equals(callExpr.getJmmChild(0).get("name"))){
+                return "invokevirtual";
+
+            }
+        }
+
+        var fields = symbolTable.getFields();
+
+        for(var field : fields){
+            if(field.equals(callExpr.getJmmChild(0).get("name"))){
+                return "invokevirtual";
+            }
+        }
+
+        var params = symbolTable.getParameters(parentMethod.get("name"));
+
+        for(var param: params){
+            if(param.equals(callExpr.getJmmChild(0).get("name"))){
+                return "invokevirtual";
+            }
+        }
+
+        var imports = symbolTable.getImports();
+        for(int i = 0; i < imports.size(); i++){
+            if(imports.get(i).equals(callExpr.getJmmChild(0).get("name"))){
+                return "invokestatic";
+            }
+        }
+
+        throw new NotImplementedException(this);
+    }
+
+    public ArrayList callExprVisitor(JmmNode callExprNode, ArrayList children){
+        var result = new ArrayList<>();
+
+        String invokeCode = "";
+
+        var invokeType = getInvokeCode(callExprNode);
+
+        invokeCode += invokeType + "(";
+
+        var leftChild = visit(callExprNode.getJmmChild(0));
+        var rightChild = visit(callExprNode.getJmmChild(1));
+        var argumentsNode = visit(callExprNode.getJmmChild(2));
+
+
+        invokeCode += parseName(leftChild.get(1).toString());
+
+        if(invokeType.equals("invokevirtual")){
+            var type = getVariableStringByName(callExprNode.getJmmChild(0).get("name"), callExprNode).get(1);
+            invokeCode += type;
+        }
+
+        invokeCode += ", \"";
+        invokeCode += rightChild.get(1);
+        invokeCode+= "\"";
+
+        invokeCode += argumentsNode.get(1);
+
+        invokeCode += ")";
+
+
+        var assignNode =AstUtils.getPreviousNode(callExprNode, AstNode.ASSIGNMENT);
+        String type;
+        if(assignNode == null){
+            type = ".V";
+        }
+        else{
+            type = getVariableStringByName(assignNode.getJmmChild(0).get("name"), assignNode).get(1);
+        }
+
+
+
+        invokeCode += type;
+        String address = "temp_" + tempVarCounter++ + type;
+
+
+        String code = leftChild.get(0).toString() + rightChild.get(0).toString() + argumentsNode.get(0).toString() +
+                address + " :=" + type + " "+ invokeCode + ";\n";
+
+        result.add(code);
+        result.add(address);
+
+        return result;
+
+    }
+
+    public String parseName(String fullVarName){
+        var tokens = fullVarName.split("\\.");
+        if(tokens.length == 2 || tokens.length == 1){
+            return tokens[0];
+        }
+        else{
+            return tokens[0] + "." + tokens[1];
+        }
+    }
+
+    public ArrayList argumentsVisit(JmmNode arguments, ArrayList children){
+        var result = new ArrayList<>();
+        String address = "";
+        String code = "";
+        for(var child: arguments.getChildren()){
+            var arg = visit(child);
+            address += ", " + arg.get(1);
+            code += arg.get(0);
+
+        }
+
+        result.add(code);
+        result.add(address);
+
+        return result;
+    }
 
     public ArrayList assignmentVisit(JmmNode assignmentNode, ArrayList children){
 
@@ -48,14 +169,15 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
 
         var address = leftChild.get(1) ;
-        String assignType = leftChild.get(1).toString().split("\\.")[1];
+//        String assignType = leftChild.get(1).toString().split("\\.")[1];
+        String assignType = getVariableStringByName(assignmentNode.getJmmChild(0).get("name"), assignmentNode.getJmmChild(0)).get(1).toString();
         String code;
 //        if(complete){
 //            code = leftChild.get(1) + " :=."+ assignType + " " + rightChild.get(0).toString();
 //
 //        }
 //        else{
-            code = rightChild.get(0).toString() + address.toString() + " :=." + assignType + " " + rightChild.get(1) + ";\n";
+        code = rightChild.get(0).toString() + address.toString() + " :=" + assignType + " " + rightChild.get(1) + ";\n";
 //        }
 
         result.add(code);
@@ -64,6 +186,39 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
         return result;
     }
+
+    public ArrayList objectCreationExpression(JmmNode objectCreationNode, ArrayList children){
+        var result = new ArrayList<>();
+
+        String address = "new(";
+
+
+        if(objectCreationNode.getJmmChild(0).getKind().equals(AstNode.ID.toString())){
+            var objectName = objectCreationNode.getJmmChild(0).get("name");
+            address += objectName + ")." + objectName;
+        }
+        else{ // Array Declaration
+            address+= "array,";
+            var arrayDeclChild = visit(objectCreationNode.getJmmChild(0).getJmmChild(0));
+            address += arrayDeclChild.get(1).toString() + ").array.i32";
+
+        }
+
+//        var child = visit(objectCreationNode.getJmmChild(0));
+//
+//
+//        var objectName = child.get(1).toString();
+//        address += objectName + ")." + objectName;
+
+        String code = "";
+
+        result.add(code);
+        result.add(address);
+
+        return result;
+    }
+
+
     public ArrayList binOPVisit(JmmNode assignmentNode, ArrayList children){
         var result = new ArrayList<>();
 
@@ -105,20 +260,10 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
         String address;
         String code;
-//        if(countVisit == 0){
-//            address = "";
-//            complete = true;
-//            code = leftChild.get(1) +" "+ opString +" "+ rightChild.get(1) + ";\n";
-//        }
-//        else{
-            address = "temp_" + tempVarCounter++ + opType;
-            code = leftChild.get(0).toString() + rightChild.get(0).toString() +
+
+        address = "temp_" + tempVarCounter++ + opType;
+        code = leftChild.get(0).toString() + rightChild.get(0).toString() +
                     address + " :=" + opType + " " +leftChild.get(1) +" "+ opString +" "+ rightChild.get(1) + ";\n";
-//        }
-//        address = "temp_" + tempVarCounter++ + ".i32";
-
-
-
 
 
         result.add(code);
@@ -162,7 +307,7 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
         for (var localVar: localVars) {
             if(localVar.getName().equals(name)){
                 result.add(name);
-                result.add("." + OllirUtils.getOllirType(localVar.getType().getName()));
+                result.add("." + OllirUtils.getOllirType(localVar.getType()));
                 return result;
             }
         }
@@ -172,7 +317,7 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
         for(var field : fields){
             if(field.getName().equals(name)){
                 result.add(name);
-                result.add("." + OllirUtils.getOllirType(field.getType().getName()));
+                result.add("." + OllirUtils.getOllirType(field.getType()));
                 return result;
             }
         }
@@ -181,7 +326,7 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
         for(var methodParam: methodParameters){
             if(methodParam.getName().equals(name)){
                 result.add("$" +counter+"."+ name);
-                result.add("." + OllirUtils.getOllirType(methodParam.getType().getName()));
+                result.add("." + OllirUtils.getOllirType(methodParam.getType()));
                 return result;
             }
             counter ++;
@@ -196,16 +341,24 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
         var code = "";
 
+
         var variable = getVariableStringByName(idNode.get("name"), idNode);
 
+        String address;
+        if(variable.size() == 0){
+            address = idNode.get("name");
+        }else{
+            address = variable.get(0) + variable.get(1);
 
-        var address = variable.get(0) + variable.get(1);
+        }
+
 
         result.add(code);
         result.add(address);
 
-
         return result;
     }
+
+
 
 }

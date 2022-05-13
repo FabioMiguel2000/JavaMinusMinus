@@ -1,6 +1,5 @@
 package pt.up.fe.comp.Ollir;
 
-import pt.up.fe.comp.AST.AstNode;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
@@ -43,6 +42,22 @@ public class OllirUtils {
         }
 
     }
+
+    public static String getOllirType(Type type){
+
+        switch (type.getName()){
+            case "void":
+                return "V";
+            case "int":
+                return type.isArray()? "array.i32" : "i32";
+            case "boolean":
+                return "bool";
+            default:
+                return type.getName();
+        }
+    }
+
+
     public static int getMaxDepth(JmmNode currentNode){
 
         if (currentNode == null){
