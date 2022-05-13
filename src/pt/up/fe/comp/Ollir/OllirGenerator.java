@@ -125,24 +125,48 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
 
     public Integer stmtVisit(JmmNode stmt, Integer dummy){
-        visit(stmt.getJmmChild(0));
-        if(stmt.getJmmChild(0).getKind().equals(AstNode.IF_ELSE_STATEMENT.toString())){
-            return 0;
+        for(var stmtChild : stmt.getChildren()){
+            visit(stmtChild);
+            if(stmtChild.getKind().equals(AstNode.IF_ELSE_STATEMENT.toString())){
+                continue;
+            }
+            if(stmtChild.getKind().equals(AstNode.ASSIGNMENT.toString())){
+                continue;
+            }
+            if(stmtChild.getKind().equals(AstNode.WHILE_STATEMENT.toString())){
+                continue;
+            }
+            code.append(";\n");
         }
-        if(stmt.getJmmChild(0).getKind().equals(AstNode.ASSIGNMENT.toString())){
-            return 0;
-        }
-
-        code.append(";\n");
 
         return 0;
     }
     public Integer whileVisit(JmmNode whileNode, Integer dummy){
         int localLoopCounter = loopCounter++;
 
+        code.append("Loop_" + localLoopCounter).append(":\n");
 
+        var whileConditionNode = whileNode.getJmmChild(0);
 
+        OllirThreeAddressCoder coder = new OllirThreeAddressCoder(symbolTable);
 
+        var coditionCode = coder.visit(whileConditionNode);
+
+        code.append(coditionCode.get(0));
+
+        code.append("if(");
+
+        code.append(coditionCode.get(1));
+
+        code.append(") goto Body_" + localLoopCounter).append(";\n");
+        code.append("goto EndLoop_" + localLoopCounter).append(";\n");
+        code.append("Body_"+ localLoopCounter +":\n");
+
+        visit(whileNode.getJmmChild(1));
+
+        code.append("goto Loop_"+ localLoopCounter +";\n" );
+
+        code.append("EndLoop_" + localLoopCounter + ":\n");
 
 
         return 0;

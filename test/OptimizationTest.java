@@ -79,4 +79,18 @@ public class OptimizationTest {
         var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test11.jmm"));
         TestUtils.noErrors(ollirResult);
     }
+    @Test
+    public void test12(){
+        var result = TestUtils.parse(SpecsIo.getResource("myOllirJmm/test12.jmm"));
+        System.out.println(result.getRootNode().toTree());
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test12.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
+    @Test
+    public void test13(){
+        var result = TestUtils.parse(SpecsIo.getResource("myOllirJmm/test13.jmm"));
+        System.out.println(result.getRootNode().toTree());
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test13.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
 }
