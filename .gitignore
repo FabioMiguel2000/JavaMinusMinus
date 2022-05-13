@@ -4,6 +4,7 @@
 /.settings/
 /generated/
 /run/
+.idea/
 
 # Class files
 **/*.class
