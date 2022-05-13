@@ -4,7 +4,6 @@ import pt.up.fe.comp.AST.AstNode;
 import pt.up.fe.comp.AST.AstUtils;
 import pt.up.fe.comp.Analysis.SemanticAnalyser;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
-import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp.jmm.report.Report;
@@ -12,8 +11,6 @@ import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class ArrayAccessIsDoneOverArray extends PreorderJmmVisitor<Integer, Integer> implements SemanticAnalyser {
@@ -24,7 +21,7 @@ public class ArrayAccessIsDoneOverArray extends PreorderJmmVisitor<Integer, Inte
     public ArrayAccessIsDoneOverArray(SymbolTable symbolTable, JmmNode rootNode) {
         this.symbolTable = symbolTable;
         this.reports = new ArrayList<>();
-        addVisit(AstNode.ARRAY_ACCESS_EXPRESSION, this::arrayAccessVisit);
+        addVisit(AstNode.BIN_OP, this::arrayAccessVisit);
         visit(rootNode);
     }
     public Integer arrayAccessVisit(JmmNode node, Integer dummy) {
