@@ -141,6 +141,8 @@ public class Cp2Test {
     @Test
     public void test_1_06_ArrayAccessOnInt() {
         var result = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cp2/ArrayAccessOnInt.jmm"));
+        System.out.println(result.getRootNode().toTree());
+
         TestUtils.mustFail(result);
     }
 

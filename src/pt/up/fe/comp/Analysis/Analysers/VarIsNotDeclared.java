@@ -47,7 +47,6 @@ public class VarIsNotDeclared extends PreorderJmmVisitor<Integer, Integer> imple
 
             }
 
-            System.out.println(firstChild);
             if(search(firstChild.get("name"), node)){
                 return 0;
             }
