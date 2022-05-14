@@ -26,9 +26,6 @@ public class OperationType extends PreorderJmmVisitor<Integer, Integer> implemen
     }
     public Integer operationVisit(JmmNode node, Integer dummy) {
 
-        System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
-
-
         try {
             String nodeValue = node.get("value");
 
@@ -39,7 +36,7 @@ public class OperationType extends PreorderJmmVisitor<Integer, Integer> implemen
 
                 for (var c:children) {
                     try {
-                        System.out.println("-->" + c.getKind());
+                        //System.out.println("-->" + c.getKind());
                         if(!(c.getKind().equals(AstNode.LITERAL.toString()) && c.get("type").equals("int") )){
                             if( !(c.get("value").equals("add") || c.get("value").equals("sub")
                                     || c.get("value").equals("*") || c.get("value").equals("/") || nodeValue.equals("<") ) ){

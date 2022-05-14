@@ -26,10 +26,11 @@ public class JmmAnalyser implements JmmAnalysis {
 
         List<SemanticAnalyser> analysers = Arrays.asList(
                 //new ArrayAccessIsDoneOverArray(symbolTable, parserResult.getRootNode()),
-                //new ArrayIndexIsTypeInteger(symbolTable, parserResult.getRootNode()),
-                //new ArrayInArithmeticOperation(symbolTable, parserResult.getRootNode()),
+                new ArrayIndexIsTypeInteger(symbolTable, parserResult.getRootNode()),
+                new ArrayInArithmeticOperation(symbolTable, parserResult.getRootNode()),
                 //new VarIsNotDeclared(symbolTable, parserResult.getRootNode()),
-                new OperationType(symbolTable, parserResult.getRootNode())
+                new OperationType(symbolTable, parserResult.getRootNode()),
+                new ConditionExpressionMustBeBool(symbolTable, parserResult.getRootNode())
         );
 
         for(var analyser : analysers){
