@@ -8,6 +8,7 @@ class FindMaximum {
 		test_arr = new int[8];
 		test_arr[0+1] = 14;
 		test_arr[1+2+3] = 28;
+		test_arr[a&&a<a+a-a*a/a] = 0;
 		test_arr[3] = 0-5;
 		test_arr[4] = 12;
 
@@ -20,7 +21,8 @@ class FindMaximum {
 
 	public static void main(String[] args) {
 		FindMaximum fm;
-		int max;
+		int[] max;
+		fm = max;
 		fm = new FindMaximum();
 		fm.build_test_arr();
 
