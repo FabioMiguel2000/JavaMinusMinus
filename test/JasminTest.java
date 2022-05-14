@@ -5,9 +5,12 @@ import pt.up.fe.specs.util.SpecsIo;
 public class JasminTest {
     @Test
     public void test(){
-        var result = TestUtils.backend(SpecsIo.getResource("fixtures/public/HelloWorld.jmm"));
-        TestUtils.noErrors(result);
+        var jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/HelloWorld.jmm"));
+        TestUtils.noErrors(jasminResult);
 
-        result.compile();
+//        result.compile();
+        System.out.println("Jasmin Result:\n");
+        String result = jasminResult.run();
     }
+
 }

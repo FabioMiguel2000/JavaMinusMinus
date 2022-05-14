@@ -108,7 +108,7 @@ public class OllirToJasmin {
     public String getCode(Instruction instruction){
 
         // return instructionMap.apply(instruction);
-        if(instruction instanceof  CallInstruction){
+        if(instruction instanceof CallInstruction){
             return getCode((CallInstruction) instruction);
         }
         return "";
@@ -121,11 +121,24 @@ public class OllirToJasmin {
         switch (callInstruction.getInvocationType()){
             case invokestatic:
                 return getCodeInvokeStatic(callInstruction);
+            case invokevirtual:
+                return getCodeInvokeVirtual(callInstruction);
             default:
                 throw new NotImplementedException(callInstruction.getInvocationType());
         }
 
     }
+
+    private String getCodeInvokeVirtual(CallInstruction callInstruction){
+        var code = new StringBuilder();
+//        code.append("invokevirtual ");
+
+        throw new NotImplementedException(callInstruction);
+
+//        return code.toString();
+
+    }
+
 
     private String getCodeInvokeStatic(CallInstruction callInstruction){
         var code = new StringBuilder();
@@ -181,12 +194,16 @@ public class OllirToJasmin {
 
     public String getJasminType(ElementType type) {
         //TODO: adicionando os outros casos que faltam a medida que for testando
-        System.out.println();
+
         switch (type){
             case STRING:
                 return "Ljava/lang/String;";
             case VOID:
                 return "V";
+            case INT32:
+                return "I";
+            case BOOLEAN:
+                return "Z";
             default:
                 throw new NotImplementedException(type);
         }

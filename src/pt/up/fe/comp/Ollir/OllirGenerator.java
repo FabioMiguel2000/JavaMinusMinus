@@ -395,7 +395,13 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     public Integer argumentsVisit(JmmNode arguments, Integer dummy) {
         for(var child: arguments.getChildren()){
             code.append(", ");
-            visit(child);
+            if(child.getKind().equals(AstNode.ID.toString())){
+                var childInfo = getVariableStringByName(child.get("name"), child);
+                code.append(childInfo.get(0)).append(childInfo.get(1));
+            }
+            else{
+                visit(child);
+            }
         }
         return 0;
     }
