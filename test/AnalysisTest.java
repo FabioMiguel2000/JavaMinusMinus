@@ -12,7 +12,8 @@ public class AnalysisTest {
         TestUtils.noErrors(result2);
     }
 
-    public void test_noErrors(String testLocation) {
+    public void test_noErrors(String testLocationFile) {
+        var testLocation = "myAnalysis/" + testLocationFile;
         var result = TestUtils.parse(SpecsIo.getResource(testLocation));
         System.out.println(result.getRootNode().toTree());
         var result2 = TestUtils.analyse(SpecsIo.getResource(testLocation)); // Calls JmmAnalyser semanticAnalysis()
