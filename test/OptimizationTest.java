@@ -16,6 +16,8 @@ public class OptimizationTest {
     }
     @Test
     public void test1(){
+        var result = TestUtils.parse(SpecsIo.getResource("myOllirJmm/test1.jmm"));
+        System.out.println(result.getRootNode().toTree());
         var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test1.jmm"));
         TestUtils.noErrors(ollirResult);
     }
@@ -47,6 +49,48 @@ public class OptimizationTest {
     @Test
     public void test7(){
         var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test7.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
+    @Test
+    public void test8(){
+        var result = TestUtils.parse(SpecsIo.getResource("myOllirJmm/test8.jmm"));
+        System.out.println(result.getRootNode().toTree());
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test8.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
+    @Test
+    public void test9(){
+        var result = TestUtils.parse(SpecsIo.getResource("myOllirJmm/test9.jmm"));
+        System.out.println(result.getRootNode().toTree());
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test9.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
+    @Test
+    public void test10(){
+        var result = TestUtils.parse(SpecsIo.getResource("myOllirJmm/test10.jmm"));
+        System.out.println(result.getRootNode().toTree());
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test10.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
+    @Test
+    public void test11(){
+        var result = TestUtils.parse(SpecsIo.getResource("myOllirJmm/test11.jmm"));
+        System.out.println(result.getRootNode().toTree());
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test11.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
+    @Test
+    public void test12(){
+        var result = TestUtils.parse(SpecsIo.getResource("myOllirJmm/test12.jmm"));
+        System.out.println(result.getRootNode().toTree());
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test12.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
+    @Test
+    public void test13(){
+        var result = TestUtils.parse(SpecsIo.getResource("myOllirJmm/test13.jmm"));
+        System.out.println(result.getRootNode().toTree());
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test13.jmm"));
         TestUtils.noErrors(ollirResult);
     }
 }

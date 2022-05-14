@@ -1,0 +1,19 @@
+import ioPlus;
+import BoardBase;
+import java.io.File;
+
+class HelloWorld extends BoardBase{
+	public static void main(String[] args) {
+
+	    boolean a;
+	    boolean b;
+
+	    a = true;
+
+	    b = false;
+
+	    a = a && b;
+
+
+	}
+}

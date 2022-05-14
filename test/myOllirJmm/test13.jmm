@@ -1,0 +1,22 @@
+import ioPlus;
+import BoardBase;
+import java.io.File;
+
+class HelloWorld extends BoardBase{
+	public static void main(String[] args) {
+	    int a;
+	    a = 1;
+
+	    while(true){
+             a = a + 1;
+             while(true){
+                 a = 1 * a;
+             }
+        }
+        while(true && false && true){
+            a = a + 1;
+        }
+
+	}
+
+}
