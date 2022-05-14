@@ -27,9 +27,9 @@ public class JmmAnalyser implements JmmAnalysis {
         reports.addAll(symbolTableFiller.getReports());
 
         List<SemanticAnalyser> analysers = Arrays.asList(
-                new ArrayAccessIsDoneOverArray(symbolTable, parserResult.getRootNode()),
-                new ArrayIndexIsTypeInteger(symbolTable, parserResult.getRootNode()),
-                new ArrayInArithmeticOperation(symbolTable, parserResult.getRootNode())
+//                new ArrayAccessIsDoneOverArray(symbolTable, parserResult.getRootNode()),
+//                new ArrayIndexIsTypeInteger(symbolTable, parserResult.getRootNode()),
+//                new ArrayInArithmeticOperation(symbolTable, parserResult.getRootNode())
         );
 
         for(var analyser : analysers){
