@@ -1,30 +1,15 @@
-import ioPlus;
-class FindMaximum {
-	int[] test_arr;
+import A;
 
-
-
-	public int build_test_arr() {
-		test_arr = new int[8];
-		test_arr[0+1] = 14;
-		test_arr[1+2+3] = 28;
-		test_arr[3] = 0-5;
-		test_arr[4] = 12;
-
-		return 0;
-	}
-
-	public int[] get_array() {
-		return test_arr;
-	}
+class Test {
 
 	public static void main(String[] args) {
-		FindMaximum fm;
-		int max;
-		fm = new FindMaximum();
-		fm.build_test_arr();
 
-		max = fm.find_maximum(fm.get_array());
-		ioPlus.printResult(max);
+	}
+
+	public int foo() {
+		int a;
+		a = 0;
+
+		return a[10];
 	}
 }
