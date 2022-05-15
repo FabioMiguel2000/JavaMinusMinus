@@ -13,7 +13,6 @@ class A extends B {
 		a = new A();
 		b = new B();
 		
-		// A extends B
 		b = a;
 		
 		return a;
