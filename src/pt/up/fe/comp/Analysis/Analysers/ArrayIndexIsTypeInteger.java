@@ -28,9 +28,9 @@ public class ArrayIndexIsTypeInteger extends PreorderJmmVisitor<Integer, Integer
         visit(rootNode);
     }
     public Integer arrayAccessVisit(JmmNode node, Integer dummy) {
-        node = node.getJmmChild(1);
+        //node = node.getJmmChild(1);
 
-        if(!(new SearchChild(symbolTable, node).getIsValid()))
+        if(!(new SearchChild(symbolTable, node.getJmmChild(1)).getIsValid()))
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.valueOf(node.get("line")), Integer.valueOf(node.get("col")),
                     "Array index is not Integer"));
 
@@ -52,6 +52,7 @@ class SearchChild extends PreorderJmmVisitor<Integer, Integer>{
     public SearchChild(SymbolTable s, JmmNode rootNode){
         this.symbolTable = s;
         this.rootNode = rootNode;
+
         addVisit(AstNode.BIN_OP, this::visitBinOp);
         addVisit(AstNode.LITERAL, this::visitLiteral);
         addVisit(AstNode.ID, this::visitId);
@@ -88,8 +89,8 @@ class SearchChild extends PreorderJmmVisitor<Integer, Integer>{
         if(!isValid)
             return 0;
 
-
-        if(node.get("name").equals(rootNode.getJmmChild(0).get("name")) )
+        JmmNode parent = node.getJmmParent();
+        if(node.get("name").equals(parent.getJmmChild(0).get("name")) )
             return 0;
 
         var tempMethod = AstUtils.getPreviousNode(node, AstNode.METHOD_DECLARATION).get("name");
