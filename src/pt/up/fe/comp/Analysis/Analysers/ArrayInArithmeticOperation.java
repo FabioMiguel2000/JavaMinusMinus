@@ -2,18 +2,18 @@ package pt.up.fe.comp.Analysis.Analysers;
 
 import pt.up.fe.comp.AST.AstNode;
 import pt.up.fe.comp.AST.AstUtils;
-import pt.up.fe.comp.Analysis.SemanticAnalyser;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.ReportType;
+import pt.up.fe.comp.jmm.report.ReportsProvider;
 import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArrayInArithmeticOperation extends PreorderJmmVisitor<Integer, Integer> implements SemanticAnalyser {
+public class ArrayInArithmeticOperation extends PreorderJmmVisitor<Integer, Integer> implements ReportsProvider {
 
     private final SymbolTable symbolTable;
     private final List<Report>  reports;

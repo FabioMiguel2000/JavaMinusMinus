@@ -6,6 +6,7 @@ import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.ReportsProvider;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,8 +25,8 @@ public class JmmAnalyser implements JmmAnalysis {
 
         reports.addAll(symbolTableFiller.getReports());
 
-        List<SemanticAnalyser> analysers = Arrays.asList(
-                //new ArrayAccessIsDoneOverArray(symbolTable, parserResult.getRootNode()),
+        List<ReportsProvider> analysers = Arrays.asList(
+                new ArrayAccessIsDoneOverArray(symbolTable, parserResult.getRootNode()),
                 new ArrayIndexIsTypeInteger(symbolTable, parserResult.getRootNode()),
                 new ArrayInArithmeticOperation(symbolTable, parserResult.getRootNode()),
                 new VarIsNotDeclared(symbolTable, parserResult.getRootNode()),

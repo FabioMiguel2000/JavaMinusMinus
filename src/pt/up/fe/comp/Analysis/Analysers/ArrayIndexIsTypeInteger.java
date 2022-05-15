@@ -2,18 +2,19 @@ package pt.up.fe.comp.Analysis.Analysers;
 
 import pt.up.fe.comp.AST.AstNode;
 import pt.up.fe.comp.AST.AstUtils;
-import pt.up.fe.comp.Analysis.SemanticAnalyser;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.ReportType;
+import pt.up.fe.comp.jmm.report.ReportsProvider;
 import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArrayIndexIsTypeInteger extends PreorderJmmVisitor<Integer, Integer> implements SemanticAnalyser {
+public class ArrayIndexIsTypeInteger extends PreorderJmmVisitor<Integer, Integer> implements ReportsProvider{
+    // TODO: myAnalysis/ArrayIndexIsInteger.jmm must pass
 
     private final SymbolTable symbolTable;
     private final List<Report>  reports;
@@ -27,6 +28,7 @@ public class ArrayIndexIsTypeInteger extends PreorderJmmVisitor<Integer, Integer
         visit(rootNode);
     }
     public Integer arrayAccessVisit(JmmNode node, Integer dummy) {
+        node = node.getJmmChild(1);
 
         if(!(new SearchChild(symbolTable, node).getIsValid()))
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.valueOf(node.get("line")), Integer.valueOf(node.get("col")),
@@ -53,23 +55,26 @@ class SearchChild extends PreorderJmmVisitor<Integer, Integer>{
         addVisit(AstNode.BIN_OP, this::visitBinOp);
         addVisit(AstNode.LITERAL, this::visitLiteral);
         addVisit(AstNode.ID, this::visitId);
+        //visit para fn call
 
         visit(rootNode);
     }
 
     private Integer visitBinOp(JmmNode node, Integer dummy) {
+        // do nothing if is inside fn call
+        //warning, fn calls , they accept it...
         if(!isValid)
             return 0;
+        var type = node.get("value");
 
-        try {
-            node.get("op");
-        }catch (Exception e){
+        if (type.equals("<") || type.equals("&&"))
             isValid = false;
-        }
         return 0;
-
     }
+
     private Integer visitLiteral(JmmNode node, Integer dummy) {
+        // do nothing if is inside fn call
+        //warning, fn calls , they accept it...
         if(!isValid)
             return 0;
         if(!node.get("type").equals("int"))
@@ -78,6 +83,8 @@ class SearchChild extends PreorderJmmVisitor<Integer, Integer>{
         return 0;
     }
     private Integer visitId(JmmNode node, Integer dummy) {
+        // do nothing if is inside fn call
+        //warning, fn calls , they accept it...
         if(!isValid)
             return 0;
 
