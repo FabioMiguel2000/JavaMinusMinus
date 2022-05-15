@@ -211,7 +211,6 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 //
 //        }
 //        else{
-        System.out.println("AssignementNode  = " + assignmentNode);
         code = rightChild.get(0).toString() + address.toString() + " :=" + assignType + " " + rightChild.get(1) + ";\n";
 //        }
 

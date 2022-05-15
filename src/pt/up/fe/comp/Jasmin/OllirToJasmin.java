@@ -35,6 +35,7 @@ public class OllirToJasmin {
     }
 
     public String getCode(){
+        System.out.println("estou aqui");
         var code = new StringBuilder();
 
         code.append(".class public ").append(classUnit.getClassName()).append("\n");
@@ -44,9 +45,14 @@ public class OllirToJasmin {
         code.append(".super ").append(classUnit.getSuperClass()).append("\n");
 
         code.append(SpecsIo.getResource("templates/JasminConstructor.template").replace("${SUPER_NAME}", superClassQualifiedName)).append("\n");
-//        System.out.println(getFullyQualifiedName(classUnit.getSuperClass()));
+
 
         // TODO: Fields  using classUnit.getFields()
+
+
+        for(var field: classUnit.getFields()){
+            code.append(getCode(field));
+        }
 
         for (var method: classUnit.getMethods()){
             code.append(getCode(method));
@@ -54,6 +60,11 @@ public class OllirToJasmin {
 
 
         return code.toString();
+    }
+    public String getCode(Field field){
+
+        System.out.println("Entrou field");
+        return "";
     }
 
     public String getCode(Method method){
@@ -100,6 +111,7 @@ public class OllirToJasmin {
         for(var instruction: method.getInstructions()){
             code.append(getCode(instruction));
         }
+
         code.append("return\n");
         code.append(".end method\n\n");
         return code.toString();
@@ -111,6 +123,33 @@ public class OllirToJasmin {
         if(instruction instanceof CallInstruction){
             return getCode((CallInstruction) instruction);
         }
+        if(instruction instanceof AssignInstruction){
+            return getCode((AssignInstruction)instruction);
+        }
+        if(instruction instanceof OpInstruction){
+            return getCode((OpInstruction) instruction);
+        }
+
+        // ... TODO: other instructions, maybe use switch
+        return "";
+    }
+    public String getCode(AssignInstruction assignInstruction){
+        System.out.println("ASSIGN");
+//        assignInstruction.show();
+//        switch (assignInstruction.getTypeOfAssign().getTypeOfElement()){
+//
+//        }
+
+        return "";
+    }
+    public String getCode(OpInstruction opInstruction){
+        System.out.println("OP");
+
+//        opInstruction.show();
+//        switch (assignInstruction.getTypeOfAssign().getTypeOfElement()){
+//
+//        }
+
         return "";
     }
 
