@@ -31,8 +31,9 @@ public class JmmAnalyser implements JmmAnalysis {
                 new ArrayInArithmeticOperation(symbolTable, parserResult.getRootNode()),
                 new VarIsNotDeclared(symbolTable, parserResult.getRootNode()),
                 new OperationType(symbolTable, parserResult.getRootNode()),
-                new ConditionExpressionMustBeBool(symbolTable, parserResult.getRootNode())
-        );
+                new ConditionExpressionMustBeBool(symbolTable, parserResult.getRootNode()),
+                new AssignType(symbolTable, parserResult.getRootNode())
+                );
 
         for(var analyser : analysers){
             reports.addAll(analyser.getReports());
