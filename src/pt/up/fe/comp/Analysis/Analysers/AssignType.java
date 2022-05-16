@@ -26,7 +26,6 @@ public class AssignType extends PreorderJmmVisitor<Integer, Integer> implements 
         visit(rootNode);
     }
     public Integer assignVisit(JmmNode node, Integer dummy) {
-
         JmmNode leftChild = node.getJmmChild(0);
         JmmNode rightChild = node.getJmmChild(1);
 
@@ -37,11 +36,20 @@ public class AssignType extends PreorderJmmVisitor<Integer, Integer> implements 
         String rightIdType = _typeCheck(rightChild);
         //System.out.println("RIGHT = " + rightIdType);
 
-        //TODO: checkar se rightChild = 'new qqcoisa()'
 
-        if(!leftIdType.equals(rightIdType))
+
+        if (rightIdType.equals("null")){
+            if(rightChild.getKind().equals(AstNode.OBJECT_CREATION_EXPRESSION.toString())){
+                JmmNode newObject = rightChild.getJmmChild(0);
+                //System.out.println(newObject);
+
+                //TODO: checkar se rightChild = 'new qqcoisa()'
+                //ta nas variaveis locais
+            }
+        }else if(!leftIdType.equals(rightIdType)){
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC,Integer.valueOf(node.get("line")) , Integer.valueOf(node.get("col")),
                     "Assignment with wrong types"));
+        }
 
         return 0;
     }
