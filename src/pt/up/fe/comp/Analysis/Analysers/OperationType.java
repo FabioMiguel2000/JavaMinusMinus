@@ -25,56 +25,29 @@ public class OperationType extends PreorderJmmVisitor<Integer, Integer> implemen
         visit(rootNode);
     }
     public Integer operationVisit(JmmNode node, Integer dummy) {
+        System.out.println("$$$$$$$$$$$$$$$$$");
+        String nodeValue = node.get("value");
 
-        try {
-            String nodeValue = node.get("value");
+        System.out.println(nodeValue);
 
-            if(nodeValue.equals("add") || nodeValue.equals("sub")
-            || nodeValue.equals("*") || nodeValue.equals("/") || nodeValue.equals("<") ){
+        String res = _typeCheck(node);
+        System.out.println(res);
 
-                List<JmmNode> children = node.getChildren();
+        if(res.equals("null")){
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC,Integer.valueOf(node.get("line")) , Integer.valueOf(node.get("col")),
+                    "Operation with wrong types"));
 
-                for (var c:children) {
-                    try {
-                        //System.out.println("-->" + c.getKind());
-                        if(!(c.getKind().equals(AstNode.LITERAL.toString()) && c.get("type").equals("int") )){
-                            if( !(c.get("value").equals("add") || c.get("value").equals("sub")
-                                    || c.get("value").equals("*") || c.get("value").equals("/") || nodeValue.equals("<") ) ){
-                                this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC,Integer.valueOf(node.get("line")) , Integer.valueOf(node.get("col")),
-                                        "Operation with wrong types"));
-                            }
-                        }
+        }else{
 
-
-                    } catch (Exception e) {
-                        if(!getIdType(c).equals("int"))
-                            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC,Integer.valueOf(node.get("line")) , Integer.valueOf(node.get("col")),
-                                    "Operation with wrong types"));
-                    }
-                }
-
-            }
-            else if(nodeValue.equals("&&") ){
-                List<JmmNode> children = node.getChildren();
-
-                for (var c: children ) {
-                    if(!(c.getKind().equals(AstNode.LITERAL.toString()) && c.get("type").equals("boolean") )){
-                        if( !(c.get("value").equals("&") ))
-                            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC,Integer.valueOf(node.get("line")) , Integer.valueOf(node.get("col")),
+            //pelo que parece não é preciso fazer mais nada :)
+            /*if(res.equals("int")){
+                if(!(nodeValue.equals("add") || nodeValue.equals("sub")
+                        || nodeValue.equals("*") || nodeValue.equals("/") || nodeValue.equals("<") ))
+                        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC,Integer.valueOf(node.get("line")) , Integer.valueOf(node.get("col")),
                                 "Operation with wrong types"));
 
-                    }
-                }
-            }
-
-
-        }catch (Exception e){
-
-            //TODO se for função ou assim :(
-                System.out.println(node.get("op"));
-
+            }*/
         }
-
 
         return 0;
     }
@@ -97,6 +70,36 @@ public class OperationType extends PreorderJmmVisitor<Integer, Integer> implemen
                 return field.getType().toString();
         }
         return "";
+    }
+
+    private String _typeCheck(JmmNode node) {
+        var myKind = node.getKind();
+
+        if (myKind.equals(AstNode.BIN_OP.toString())) {
+            boolean isAnd = node.get("value").equals("&&");
+            var left = _typeCheck(node.getJmmChild(0));
+            var right= _typeCheck(node.getJmmChild(1));
+            if (isAnd && !(left.equals("boolean")) && right.equals("boolean")) { return "null"; }
+            if (!(left.equals("int")) && right.equals("int")) { return "null"; }
+
+            if (node.get("value").equals("&&") || node.get("value").equals("<")) {
+                return "boolean";
+            }
+            if( left.equals("int") && right.equals("int") )
+                return "int";
+        }
+
+        if (myKind.equals(AstNode.LITERAL.toString())) {
+            return node.get("type");
+        }
+        if (myKind.equals(AstNode.ID.toString())) {
+            return getIdType(node);
+        }
+        if (myKind.equals(AstNode.METHOD_DECLARATION.toString())) {
+            return "null"; // TODO: implement method
+        }
+
+        return "null";
     }
 
     @Override
