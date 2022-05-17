@@ -29,8 +29,17 @@ public class AssignType extends PreorderJmmVisitor<Integer, Integer> implements 
         JmmNode leftChild = node.getJmmChild(0);
         JmmNode rightChild = node.getJmmChild(1);
 
+        System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+        String leftIdType = "";
+        try{
+            leftIdType = getIdType(leftChild).getName();
+        }catch(Exception e){
+            if (leftChild.getKind().equals(AstNode.ARRAY_ACCESS_EXPRESSION.toString())){
+                leftIdType = getIdType(leftChild.getJmmChild(0)).getName();
+            }
+        }
 
-        String leftIdType = getIdType(leftChild).getName();
+
         //System.out.println("LEFT = " + leftIdType);
 
         String rightIdType = _typeCheck(rightChild);
@@ -66,14 +75,17 @@ public class AssignType extends PreorderJmmVisitor<Integer, Integer> implements 
             if(node.get("name").equals(param.getName()))
                 return param.getType();
         }
+
         //fields
         for (var field :symbolTable.getFields() ) {
+            System.out.println("-->"+field);
             if(node.get("name").equals(field.getName()))
                 return field.getType();
         }
         return null;
     }
 
+    //checkar
     private String _typeCheck(JmmNode node) {
         var myKind = node.getKind();
 
