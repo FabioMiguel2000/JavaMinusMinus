@@ -29,7 +29,6 @@ public class AssignType extends PreorderJmmVisitor<Integer, Integer> implements 
         JmmNode leftChild = node.getJmmChild(0);
         JmmNode rightChild = node.getJmmChild(1);
 
-        System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
         String leftIdType = "";
         try{
             leftIdType = getIdType(leftChild).getName();
@@ -39,23 +38,35 @@ public class AssignType extends PreorderJmmVisitor<Integer, Integer> implements 
             }
         }
 
-
-        //System.out.println("LEFT = " + leftIdType);
+        System.out.println("LEFT = " + leftIdType);
 
         String rightIdType = _typeCheck(rightChild);
         //System.out.println("RIGHT = " + rightIdType);
 
-
-
         if (rightIdType.equals("null")){
             if(rightChild.getKind().equals(AstNode.OBJECT_CREATION_EXPRESSION.toString())){
-                JmmNode newObject = rightChild.getJmmChild(0);
-                //System.out.println(newObject);
 
-                //TODO: checkar se rightChild = 'new qqcoisa()'
-                //ta nas variaveis locais
+                JmmNode grandchild = rightChild.getJmmChild(0);
+                //System.out.println("---> "+ grandchild);
+
+                //só pode ser ArrayDeclaration ou Id
+
+                if(grandchild.getKind().equals(AstNode.ARRAY_DECLARATION.toString())){
+                    rightIdType = grandchild.getJmmChild(0).get("type");
+
+                }else{ // ID
+                    //System.out.println("-------->" + grandchild.get("name"));
+                    //System.out.println("tou aqui dentro");
+                    rightIdType = leftIdType;
+                    //TODO: caso rightChild = 'new qqcoisa()'
+
+                }
+
             }
-        }else if(!leftIdType.equals(rightIdType)){
+
+        }
+
+        if(!leftIdType.equals(rightIdType)){
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC,Integer.valueOf(node.get("line")) , Integer.valueOf(node.get("col")),
                     "Assignment with wrong types"));
         }
@@ -78,28 +89,22 @@ public class AssignType extends PreorderJmmVisitor<Integer, Integer> implements 
 
         //fields
         for (var field :symbolTable.getFields() ) {
-            System.out.println("-->"+field);
             if(node.get("name").equals(field.getName()))
                 return field.getType();
         }
         return null;
     }
 
-    //checkar
     private String _typeCheck(JmmNode node) {
         var myKind = node.getKind();
 
         if (myKind.equals(AstNode.BIN_OP.toString())) {
-            boolean isAnd = node.get("value").equals("&&");
             var left = _typeCheck(node.getJmmChild(0));
-            var right= _typeCheck(node.getJmmChild(1));
-            if (isAnd && !(left.equals("boolean")) && right.equals("boolean")) { return "null"; }
-            if (!(left.equals("int")) && right.equals("int")) { return "null"; }
 
             if (node.get("value").equals("&&") || node.get("value").equals("<")) {
                 return "boolean";
             }
-            if( left.equals("int") && right.equals("int") )
+            if( left.equals("int") )
                 return "int";
         }
 
