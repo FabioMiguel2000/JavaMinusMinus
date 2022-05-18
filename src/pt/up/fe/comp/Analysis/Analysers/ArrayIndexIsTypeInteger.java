@@ -14,6 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ArrayIndexIsTypeInteger extends PreorderJmmVisitor<Integer, Integer> implements ReportsProvider{
+    /**
+     * This class verify that array_var [ int ] -- checks if index is int.
+     * Has a preorder to lookup for ARRAY_ACCESS_EXPRESSION, then it calls SearchChild on that node
+     * It will verify that all top level is int and below.
+     */
+
+
     // TODO: myAnalysis/ArrayIndexIsInteger.jmm must pass
 
     private final SymbolTable symbolTable;
@@ -31,7 +38,8 @@ public class ArrayIndexIsTypeInteger extends PreorderJmmVisitor<Integer, Integer
         //node = node.getJmmChild(1);
 
         if(!(new SearchChild(symbolTable, node.getJmmChild(1)).getIsValid()))
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.valueOf(node.get("line")), Integer.valueOf(node.get("col")),
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC,
+                    Integer.valueOf(node.get("line")), Integer.valueOf(node.get("col")),
                     "Array index is not Integer"));
 
         return 0;
@@ -44,6 +52,11 @@ public class ArrayIndexIsTypeInteger extends PreorderJmmVisitor<Integer, Integer
 }
 
 class SearchChild extends PreorderJmmVisitor<Integer, Integer>{
+    /**
+     * This needs to change from preorder to manual recursion.
+     * All because you can have boolean or other types since it's inside a function.
+     * Preorder will search inside function too... which is not ideal. TODO
+     */
     private final SymbolTable symbolTable;
     private boolean isValid = true;
     private final JmmNode rootNode;
@@ -56,6 +69,7 @@ class SearchChild extends PreorderJmmVisitor<Integer, Integer>{
         addVisit(AstNode.BIN_OP, this::visitBinOp);
         addVisit(AstNode.LITERAL, this::visitLiteral);
         addVisit(AstNode.ID, this::visitId);
+        // TODO : function type
         //visit para fn call
 
         visit(rootNode);

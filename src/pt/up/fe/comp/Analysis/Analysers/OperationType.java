@@ -54,7 +54,7 @@ public class OperationType extends PreorderJmmVisitor<Integer, Integer> implemen
 
     public String getIdType(JmmNode node){
         var father = AstUtils.getPreviousNode(node, AstNode.METHOD_DECLARATION);
-        //localvars
+        //localVars
         for (var localVariable :symbolTable.getLocalVariables( father.get("name") )) {
             if(node.get("name").equals(localVariable.getName()))
                 return localVariable.getType().toString();

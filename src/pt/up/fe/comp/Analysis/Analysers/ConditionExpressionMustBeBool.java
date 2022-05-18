@@ -14,6 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConditionExpressionMustBeBool  extends PreorderJmmVisitor<Integer, Integer> implements ReportsProvider {
+    /**
+     * This class checks what's inside if ( inside must be bool )
+     * or while ( inside must be bool too )
+     * It stops at every WHILE_STATEMENT and IF_STATEMENT;
+     * Then with this node it starts a recursive search. Read more on _boolCheck.
+     */
 
     private final SymbolTable symbolTable;
     private final List<Report> reports;
@@ -43,6 +49,13 @@ public class ConditionExpressionMustBeBool  extends PreorderJmmVisitor<Integer, 
     }
 
     private String _boolCheck(JmmNode node) {
+        /**
+         * This is a recursive function.
+         * it goes to every base case first, meaning it stops at literals or id or method_declaration.
+         * then it returns its type,
+         * then checks with its parent node.
+         *
+         */
         var myKind = node.getKind();
 
         if (myKind.equals(AstNode.BIN_OP.toString())) {
