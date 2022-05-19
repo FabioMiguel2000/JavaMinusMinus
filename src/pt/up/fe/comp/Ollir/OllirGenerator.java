@@ -233,7 +233,16 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
 
     public Integer literalVisit(JmmNode literalNode, Integer dummy){
-        code.append(literalNode.get("value")).append(".");
+        if(literalNode.get("value").equals("true")){
+            code.append("1");
+        }
+        else if(literalNode.get("value").equals("false")){
+            code.append("0");
+        }
+        else{
+            code.append(literalNode.get("value"));
+        }
+        code.append(".");
         code.append(OllirUtils.getOllirType(literalNode.get("type")));
         return 0;
     }

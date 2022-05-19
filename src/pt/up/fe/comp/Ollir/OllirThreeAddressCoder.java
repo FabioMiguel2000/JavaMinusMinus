@@ -312,13 +312,15 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
         var code = "";
 
-        var address = literalNode.get("value");
+        String address = "";
         switch (literalNode.get("type")){
             case "int":
+                address += literalNode.get("value");
                 address += ".i32";
                 operatorStack.push(".i32");
                 break;
             case "boolean":
+                address += literalNode.get("value").equals("true")? "1": "0";
                 address += ".bool";
                 operatorStack.push(".bool");
                 break;

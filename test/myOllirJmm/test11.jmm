@@ -7,11 +7,13 @@ class HelloWorld extends BoardBase{
 
         bool a;
         Board b;
+        bool d;
         int c;
+        d = false;
         b = new Board();
         a = b.add(1+2) < 3;
 
-        if(b.add(1+2) < 3 && true){
+        if(b.add(1+2) < 3 && true ){
             c = 3;
         }
         else{
