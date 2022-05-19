@@ -17,24 +17,7 @@ public class OllirToJasmin {
         classUnit.buildVarTables();
     }
 
-    public String getFullyQualifiedName(String className){
-        for (var importString: classUnit.getImports()){
-            var splittedImport  = importString.split("\\.");
-            String lastName;
 
-            if(splittedImport.length == 0){
-                lastName = importString;
-            }
-            else{
-                lastName = splittedImport[splittedImport.length-1];
-            }
-
-            if(lastName.equals(className)){
-                return importString.replace('.', '/');
-            }
-        }
-        throw new RuntimeException("Could not find import for class " + className);
-    }
 
     public String getCode(){
         var code = new StringBuilder();
@@ -80,7 +63,7 @@ public class OllirToJasmin {
 
         this.varTable = method.getVarTable();
 
-        System.out.println("VarTable:" + method.getVarTable());
+//        System.out.println("VarTable:" + method.getVarTable());
 
         if(method.isConstructMethod()){
             return "";
@@ -110,9 +93,6 @@ public class OllirToJasmin {
 
         code.append(method.getMethodName()).append("(");
 
-//        System.out.println("method.getParams() = " + method.get);
-//        System.out.println("Param size=" + method.getParams().size());
-
         var methodParamTypes = method.getParams().stream()
                 .map(element -> getJasminType(element.getType()))
                 .collect(Collectors.joining());
@@ -136,7 +116,7 @@ public class OllirToJasmin {
 
     }
     public String getInstructionCode(Instruction instruction, Method method){
-        instruction.show();
+//        instruction.show();
 
 //         return instructionMap.apply(instruction);
 //        if(instruction instanceof CallInstruction){
@@ -282,7 +262,7 @@ public class OllirToJasmin {
             // left hand side is an array type
         }
 
-        assignInstruction.getRhs().show();
+//        assignInstruction.getRhs().show();
 
         code.append(getInstructionCode(assignInstruction.getRhs(), parentMethod)); // append the right hand side instruction code first
 
@@ -296,22 +276,7 @@ public class OllirToJasmin {
     }
 
 
-    public String getCode(OpInstruction opInstruction){
-
-        if(opInstruction instanceof UnaryOpInstruction){
-
-
-        }
-        if(opInstruction instanceof BinaryOpInstruction){
-
-        }
-//        opInstruction.show();
-//        switch (assignInstruction.getTypeOfAssign().getTypeOfElement()){
 //
-//        }
-
-        return "";
-    }
 
     public String getCode(CallInstruction callInstruction){
 
@@ -322,25 +287,81 @@ public class OllirToJasmin {
                 return getCodeInvokeStatic(callInstruction);
             case invokevirtual:
                 return getCodeInvokeVirtual(callInstruction);
+            case invokespecial:
+                return getCodeInvokeSpecial(callInstruction);
+            case NEW:
+                return getCodeNewObject(callInstruction);
             default:
                 throw new NotImplementedException(callInstruction.getInvocationType());
         }
 
     }
 
+
+
+    private String getCodeNewObject(CallInstruction callInstruction){
+        var code = new StringBuilder();
+//        callInstruction.show();
+        Element element = callInstruction.getFirstArg();
+
+//        element.show();
+        switch (element.getType().getTypeOfElement()){
+            case OBJECTREF:
+                String objName = getFullyQualifiedName( ((Operand)element).getName());
+                code.append("new ").append(objName).append("\n");
+                code.append("dup\n");
+//                System.out.println(code);
+                break;
+            case ARRAYREF:
+                code.append(loadElement(callInstruction.getListOfOperands().get(0)));
+                code.append("newarray int\n");
+                break;
+            default:
+                throw new NotImplementedException(element.getType().getTypeOfElement());
+        }
+
+        return code.toString();
+    }
+
     private String getCodeInvokeVirtual(CallInstruction callInstruction){
         var code = new StringBuilder();
-//        code.append("invokevirtual ");
 
-        throw new NotImplementedException(callInstruction);
+        for(var operand: callInstruction.getListOfOperands()){
+            code.append(loadElement(operand));
+        }
 
-//        return code.toString();
+        code.append("invokevirtual ");
+
+        var methodClass = ((Operand) callInstruction.getFirstArg()).getName();
+
+        code.append(methodClass);
+
+        code.append("/");
+        var calledMethod = ((LiteralElement) callInstruction.getSecondArg()).getLiteral();
+        code.append(calledMethod.substring(1, calledMethod.length()-1));
+        code.append("(");
+
+        for(var operand: callInstruction.getListOfOperands()){
+            code.append(getArgumentCode(operand));
+        }
+
+        code.append(")");
+
+        code.append(getJasminType(callInstruction.getReturnType()));
+
+        code.append("\n");
+
+        return code.toString();
 
     }
 
 
     private String getCodeInvokeStatic(CallInstruction callInstruction){
         var code = new StringBuilder();
+
+        for(var operand: callInstruction.getListOfOperands()){
+            code.append(loadElement(operand));
+        }
 
         code.append("invokestatic ");
 
@@ -354,7 +375,7 @@ public class OllirToJasmin {
         code.append("(");
 
         for(var operand: callInstruction.getListOfOperands()){
-            getArgumentCode(operand);
+            code.append(getArgumentCode(operand));
         }
 
         code.append(")");
@@ -363,21 +384,24 @@ public class OllirToJasmin {
 
         code.append("\n");
 
-//        var firstType = callInstruction.getFirstArg();
-//
-//        System.out.println("TYPE of Element: " + firstType.getType().getTypeOfElement());
-//
-//        System.out.println("CLASS NAME: " +  ((ClassType)firstType.getType()).getName());
-//
-//        System.out.println("SECOND ARG: " + callInstruction.getSecondArg());
+        return code.toString();
+    }
 
+    private String getCodeInvokeSpecial(CallInstruction callInstruction){
+        var code = new StringBuilder();
 
+        code.append("invokespecial <init>()V\n"); // invokeSpecial will be only used new objet creation, so only need to consider this condition
+
+        if(!((ClassType)callInstruction.getFirstArg().getType()).getName().equals("this")){
+            code.append(this.storeValueIntoVariable((Operand) callInstruction.getFirstArg()));
+        }
         return code.toString();
     }
 
 
-    private void getArgumentCode(Element operand){
-        throw new NotImplementedException(this);
+    private String getArgumentCode(Element operand){
+        return getJasminType(operand.getType());
+//        throw new NotImplementedException(this);
     }
 
 
@@ -410,6 +434,29 @@ public class OllirToJasmin {
     }
 
     // ------------------------- UTILS --------------------------------------
+
+    public String getFullyQualifiedName(String className){
+        for (var importString: classUnit.getImports()){
+            var splittedImport  = importString.split("\\.");
+            String lastName;
+
+            if(splittedImport.length == 0){
+                lastName = importString;
+            }
+            else{
+                lastName = splittedImport[splittedImport.length-1];
+            }
+
+            if(lastName.equals(className)){
+                return importString.replace('.', '/');
+            }
+        }
+        if(classUnit.getClassName().equals(className)){ // Can import own class file???
+            return className;
+        }
+        throw new RuntimeException("Could not find import for class " + className);
+    }
+
     private String getVirtualRegister(String variableName){
         int virtualRegister = this.varTable.get(variableName).getVirtualReg();
         if(virtualRegister > 3){
