@@ -339,7 +339,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         code.append("new(");
         var objectName =objectCreationNode.getJmmChild(0).get("name");
         code.append(objectName).append(").");
-        code.append(objectName);
+        code.append(objectName).append("\n");
+
 
         return 0;
     }

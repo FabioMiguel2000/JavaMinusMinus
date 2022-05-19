@@ -212,6 +212,7 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 //        }
 //        else{
         code = rightChild.get(0).toString() + address.toString() + " :=" + assignType + " " + rightChild.get(1) + ";\n";
+
 //        }
 
         result.add(code);
@@ -229,7 +230,9 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
         if(objectCreationNode.getJmmChild(0).getKind().equals(AstNode.ID.toString())){
             var objectName = objectCreationNode.getJmmChild(0).get("name");
-            address += objectName + ")." + objectName;
+            address += objectName + ")." + objectName + ";\n";
+            var leftSideOfAssign = getVariableStringByName(objectCreationNode.getJmmParent().getJmmChild(0).get("name"), objectCreationNode);
+            address += "invokespecial(" + leftSideOfAssign.get(0) + leftSideOfAssign.get(1) + ", \"<init>\").V";
         }
         else{ // Array Declaration
             address+= "array,";
@@ -237,6 +240,7 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
             address += arrayDeclChild.get(1).toString() + ").array.i32";
 
         }
+
 
 //        var child = visit(objectCreationNode.getJmmChild(0));
 //
