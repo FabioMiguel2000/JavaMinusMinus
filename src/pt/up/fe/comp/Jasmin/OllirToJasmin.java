@@ -42,13 +42,6 @@ public class OllirToJasmin {
 
         code.append(SpecsIo.getResource("templates/JasminConstructor.template").replace("${SUPER_NAME}", superClassQualifiedName)).append("\n");
 
-//        for(var field: classUnit.getFields()){
-//            // TODO: Fields  using classUnit.getFields()
-//
-//            code.append(getCode(field));
-//        }
-
-
 
         for (var method: classUnit.getMethods()){
             code.append(getCode(method));
@@ -120,23 +113,10 @@ public class OllirToJasmin {
 
     }
     public String getInstructionCode(Instruction instruction, Method method){
-//        instruction.show();
-
-//         return instructionMap.apply(instruction);
-//        if(instruction instanceof CallInstruction){
-//            return getCode((CallInstruction) instruction);
-//        }
-//        if(instruction instanceof AssignInstruction){
-//            return getAssignInstructionCode((AssignInstruction)instruction, method);
-//        }
-
-//        if(instruction instanceof OpInstruction){
-//
-//        }
 
         switch (instruction.getInstType()){
             case NOPER:
-                return getNOPERCode((SingleOpInstruction) instruction, method);
+                return getCode((SingleOpInstruction) instruction);
 
             case CALL:
                 return getCode((CallInstruction) instruction);
@@ -145,17 +125,17 @@ public class OllirToJasmin {
             case ASSIGN:
                 return getAssignInstructionCode((AssignInstruction)instruction, method);
             case RETURN:
-                return getReturnInstructionCode((ReturnInstruction)instruction, method);
+                return getCode((ReturnInstruction)instruction);
 //            case BRANCH:
 //                case RETURN:
             case GETFIELD:
-                return getGetFieldInstructionCode((GetFieldInstruction) instruction, method);
+                return getCode((GetFieldInstruction) instruction);
             case PUTFIELD:
-                return getPutFieldInstructionCode((PutFieldInstruction) instruction, method);
+                return getCode((PutFieldInstruction) instruction);
 //            case UNARYOPER:
 //                return getCode((OpInstruction) instruction);
             case BINARYOPER:
-                return getBinaryOpInstructionCode((BinaryOpInstruction)instruction, method);
+                return getCode((BinaryOpInstruction)instruction);
 //                return getCode((OpInstruction) instruction);
             default:
                 throw new NotImplementedException(instruction.getInstType());
@@ -163,7 +143,7 @@ public class OllirToJasmin {
 
 //        return "";
     }
-    public String getPutFieldInstructionCode(PutFieldInstruction putFieldInstruction, Method parentMethod){
+    public String getCode(PutFieldInstruction putFieldInstruction){
         StringBuilder code = new StringBuilder();
 
         Operand firstOperand = (Operand) putFieldInstruction.getFirstOperand();
@@ -183,7 +163,7 @@ public class OllirToJasmin {
 
         return code.toString();
     }
-    public String getGetFieldInstructionCode(GetFieldInstruction getFieldInstruction, Method parentMethod){
+    public String getCode(GetFieldInstruction getFieldInstruction){
         StringBuilder code = new StringBuilder();
 
         Operand firstOperand = (Operand) getFieldInstruction.getFirstOperand();
@@ -202,7 +182,7 @@ public class OllirToJasmin {
     }
 
 
-    public String getReturnInstructionCode(ReturnInstruction returnInstruction, Method parentMethod){
+    public String getCode(ReturnInstruction returnInstruction){
         if(!returnInstruction.hasReturnValue()){
             return "return\n";
         }
@@ -218,10 +198,10 @@ public class OllirToJasmin {
                 throw new NotImplementedException(returnInstruction.getOperand().getType().getTypeOfElement());
         }
     }
-    public String getNOPERCode(SingleOpInstruction instruction, Method parentMethod){
+    public String getCode(SingleOpInstruction instruction){
         return loadElement(instruction.getSingleOperand());
     }
-    public String getBinaryOpInstructionCode(BinaryOpInstruction binaryOpInstruction, Method method){
+    public String getCode(BinaryOpInstruction binaryOpInstruction){
         StringBuilder code = new StringBuilder();
         code.append(loadElement(binaryOpInstruction.getLeftOperand()));
         code.append(loadElement(binaryOpInstruction.getRightOperand()));
@@ -253,46 +233,7 @@ public class OllirToJasmin {
         return code.toString();
     }
 
-    public String loadElement(Element element){
 
-
-//        System.out.println("Inside NOPER: ");
-//        instruction.show();
-
-
-//        Element singleOperandElement = instruction.getSingleOperand();
-        if(element instanceof ArrayOperand){
-            StringBuilder code = new StringBuilder();
-            ArrayOperand operand = (ArrayOperand) element;
-
-            code.append("aload ").append(getVirtualRegister(operand.getName())).append("\n");
-
-            code.append(loadElement(operand.getIndexOperands().get(0)));
-
-            return code + "iaload\n";
-        }
-        if(element.isLiteral()){
-            String literalString = ((LiteralElement) element).getLiteral();
-            return loadIntToStack(literalString);
-        }
-        if(element instanceof Operand){
-            Operand operand = (Operand) element;
-            switch(operand.getType().getTypeOfElement()){
-                case THIS:
-                    return "aload_0\n";
-                case INT32, BOOLEAN:
-                    return "iload"+ getVirtualRegister(operand.getName()) + "\n";
-                case OBJECTREF, ARRAYREF:
-                    return "aload" + getVirtualRegister(operand.getName()) + "\n";
-                case CLASS:
-                    return "";
-                default:
-                    throw new NotImplementedException(operand.getType().getTypeOfElement());
-            }
-        }
-
-        throw new NotImplementedException(element);
-    }
 
 
 
@@ -480,10 +421,10 @@ public class OllirToJasmin {
 
     private String getArgumentCode(Element operand){
         return getJasminType(operand.getType());
-//        throw new NotImplementedException(this);
     }
 
 
+    // ------------------------- UTILS --------------------------------------
 
     public String getJasminType(Type type){
 
@@ -512,7 +453,6 @@ public class OllirToJasmin {
         }
     }
 
-    // ------------------------- UTILS --------------------------------------
 
     public String getFullyQualifiedName(String className){
         for (var importString: classUnit.getImports()){
@@ -558,6 +498,47 @@ public class OllirToJasmin {
             return "sipush " + literal+ "\n";
         }
         return "ldc " + literal+ "\n";
+    }
+
+    public String loadElement(Element element){
+
+
+//        System.out.println("Inside NOPER: ");
+//        instruction.show();
+
+
+//        Element singleOperandElement = instruction.getSingleOperand();
+        if(element instanceof ArrayOperand){
+            StringBuilder code = new StringBuilder();
+            ArrayOperand operand = (ArrayOperand) element;
+
+            code.append("aload ").append(getVirtualRegister(operand.getName())).append("\n");
+
+            code.append(loadElement(operand.getIndexOperands().get(0)));
+
+            return code + "iaload\n";
+        }
+        if(element.isLiteral()){
+            String literalString = ((LiteralElement) element).getLiteral();
+            return loadIntToStack(literalString);
+        }
+        if(element instanceof Operand){
+            Operand operand = (Operand) element;
+            switch(operand.getType().getTypeOfElement()){
+                case THIS:
+                    return "aload_0\n";
+                case INT32, BOOLEAN:
+                    return "iload"+ getVirtualRegister(operand.getName()) + "\n";
+                case OBJECTREF, ARRAYREF:
+                    return "aload" + getVirtualRegister(operand.getName()) + "\n";
+                case CLASS:
+                    return "";
+                default:
+                    throw new NotImplementedException(operand.getType().getTypeOfElement());
+            }
+        }
+
+        throw new NotImplementedException(element);
     }
 
     private String storeValueIntoVariable(Operand operand){
