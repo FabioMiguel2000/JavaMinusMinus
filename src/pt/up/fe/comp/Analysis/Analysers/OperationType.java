@@ -30,10 +30,11 @@ public class OperationType extends PreorderJmmVisitor<Integer, Integer> implemen
         //System.out.println(nodeValue);
 
         String res = _typeCheck(node);
-        //System.out.println(res);
+        System.out.println(res);
 
         if(res.equals("null")){
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC,Integer.valueOf(node.get("line")) , Integer.valueOf(node.get("col")),
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC,
+                    Integer.valueOf(node.get("line")) , Integer.valueOf(node.get("col")),
                     "Operation with wrong types"));
 
         }else{
@@ -56,42 +57,46 @@ public class OperationType extends PreorderJmmVisitor<Integer, Integer> implemen
         //localVars
         for (var localVariable :symbolTable.getLocalVariables( father.get("name") )) {
             if(node.get("name").equals(localVariable.getName()))
-                return localVariable.getType().toString();
+                return localVariable.getType().getName();
         }
         //params
         for (var param :symbolTable.getParameters( father.get("name") )) {
             if(node.get("name").equals(param.getName()))
-                return param.getType().toString();
+                return param.getType().getName();
         }
         //fields
         for (var field :symbolTable.getFields() ) {
             if(node.get("name").equals(field.getName()))
-                return field.getType().toString();
+                return field.getType().getName();
         }
         return "";
     }
 
     private String _typeCheck(JmmNode node) {
+        System.out.println("_typecheck" + node);
         var myKind = node.getKind();
 
         if (myKind.equals(AstNode.BIN_OP.toString())) {
             boolean isAnd = node.get("value").equals("&&");
             var left = _typeCheck(node.getJmmChild(0));
             var right= _typeCheck(node.getJmmChild(1));
-            if (isAnd && !(left.equals("boolean")) && right.equals("boolean")) { return "null"; }
+            if (isAnd && !(left.equals("boolean") && right.equals("boolean"))) { return "null"; }
             if (!(left.equals("int")) && right.equals("int")) { return "null"; }
 
             if (node.get("value").equals("&&") || node.get("value").equals("<")) {
                 return "boolean";
             }
-            if( left.equals("int") && right.equals("int") )
+            if( left.equals("int") && right.equals("int") ) {
+                System.out.println(" this is int");
                 return "int";
+            }
         }
 
         if (myKind.equals(AstNode.LITERAL.toString())) {
             return node.get("type");
         }
         if (myKind.equals(AstNode.ID.toString())) {
+            System.out.println("here " + getIdType(node));
             return getIdType(node);
         }
         if (myKind.equals(AstNode.METHOD_DECLARATION.toString())) {
