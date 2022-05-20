@@ -73,7 +73,6 @@ public class OperationType extends PreorderJmmVisitor<Integer, Integer> implemen
     }
 
     private String _typeCheck(JmmNode node) {
-        System.out.println("_typecheck" + node);
         var myKind = node.getKind();
 
         if (myKind.equals(AstNode.BIN_OP.toString())) {
@@ -96,7 +95,6 @@ public class OperationType extends PreorderJmmVisitor<Integer, Integer> implemen
             return node.get("type");
         }
         if (myKind.equals(AstNode.ID.toString())) {
-            System.out.println("here " + getIdType(node));
             return getIdType(node);
         }
         if (myKind.equals(AstNode.METHOD_DECLARATION.toString())) {
