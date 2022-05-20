@@ -62,7 +62,7 @@ public class ConditionExpressionMustBeBool  extends PreorderJmmVisitor<Integer, 
             boolean isAnd = node.get("value").equals("&&");
             var left = _boolCheck(node.getJmmChild(0));
             var right= _boolCheck(node.getJmmChild(1));
-            if (isAnd && !(left.equals("boolean")) && right.equals("boolean")) { return "null"; }
+            if (isAnd && !(left.equals("boolean") && right.equals("boolean"))) { return "null"; }
             if (!(left.equals("int")) && right.equals("int")) { return "null"; }
 
             if (node.get("value").equals("&&") || node.get("value").equals("<")) {

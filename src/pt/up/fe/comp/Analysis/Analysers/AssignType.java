@@ -39,7 +39,7 @@ public class AssignType extends PreorderJmmVisitor<Integer, Integer> implements 
         String leftIdType = typeCheck(leftChild);
 
         String rightIdType = typeCheck(rightChild);
-        System.out.println("RIGHT = " + rightIdType);
+        //System.out.println("RIGHT = " + rightIdType);
 
         if (leftIdType.equals("import")) {
             return 0;
@@ -76,7 +76,8 @@ public class AssignType extends PreorderJmmVisitor<Integer, Integer> implements 
         }
 
         if(!leftIdType.equals(rightIdType)){
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC,Integer.valueOf(node.get("line")) , Integer.valueOf(node.get("col")),
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC,
+                    Integer.valueOf(node.get("line")) , Integer.valueOf(node.get("col")),
                     "Assignment with wrong types"));
         }
 
