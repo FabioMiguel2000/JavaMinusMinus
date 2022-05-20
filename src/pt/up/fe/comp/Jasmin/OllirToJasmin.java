@@ -35,7 +35,9 @@ public class OllirToJasmin {
             superClassQualifiedName = getFullyQualifiedName(classUnit.getSuperClass());
             code.append(classUnit.getSuperClass()).append("\n");
         }
-
+        for (var field : classUnit.getFields()){
+            code.append(".field ").append(field.getFieldName()).append(" ").append(getJasminType(field.getFieldType())).append("\n");
+        }
 
 
         code.append(SpecsIo.getResource("templates/JasminConstructor.template").replace("${SUPER_NAME}", superClassQualifiedName)).append("\n");
@@ -45,6 +47,8 @@ public class OllirToJasmin {
 //
 //            code.append(getCode(field));
 //        }
+
+
 
         for (var method: classUnit.getMethods()){
             code.append(getCode(method));
@@ -144,8 +148,10 @@ public class OllirToJasmin {
                 return getReturnInstructionCode((ReturnInstruction)instruction, method);
 //            case BRANCH:
 //                case RETURN:
-//            case GETFIELD:
-//            case PUTFIELD:
+            case GETFIELD:
+                return getGetFieldInstructionCode((GetFieldInstruction) instruction, method);
+            case PUTFIELD:
+                return getPutFieldInstructionCode((PutFieldInstruction) instruction, method);
 //            case UNARYOPER:
 //                return getCode((OpInstruction) instruction);
             case BINARYOPER:
@@ -157,6 +163,45 @@ public class OllirToJasmin {
 
 //        return "";
     }
+    public String getPutFieldInstructionCode(PutFieldInstruction putFieldInstruction, Method parentMethod){
+        StringBuilder code = new StringBuilder();
+
+        Operand firstOperand = (Operand) putFieldInstruction.getFirstOperand();
+        code.append(loadElement(firstOperand));
+
+        Element value = putFieldInstruction.getThirdOperand();
+        code.append(loadElement(value));
+
+        code.append("putfield ");
+
+        Operand secondOperand = (Operand) putFieldInstruction.getSecondOperand();
+
+        String fieldSpec = classUnit.getClassName()+"/" + secondOperand.getName();
+        code.append(fieldSpec).append(" ");
+
+        code.append(getJasminType(secondOperand.getType()) + "\n");
+
+        return code.toString();
+    }
+    public String getGetFieldInstructionCode(GetFieldInstruction getFieldInstruction, Method parentMethod){
+        StringBuilder code = new StringBuilder();
+
+        Operand firstOperand = (Operand) getFieldInstruction.getFirstOperand();
+        code.append(loadElement(firstOperand));
+
+        code.append("getfield ");
+
+        Operand secondOperand = (Operand) getFieldInstruction.getSecondOperand();
+
+        String fieldSpec = classUnit.getClassName()+"/" + secondOperand.getName();
+        code.append(fieldSpec).append(" ");
+
+        code.append(getJasminType(secondOperand.getType()) + "\n");
+
+        return code.toString();
+    }
+
+
     public String getReturnInstructionCode(ReturnInstruction returnInstruction, Method parentMethod){
         if(!returnInstruction.hasReturnValue()){
             return "return\n";
@@ -239,8 +284,10 @@ public class OllirToJasmin {
                     return "iload"+ getVirtualRegister(operand.getName()) + "\n";
                 case OBJECTREF, ARRAYREF:
                     return "aload" + getVirtualRegister(operand.getName()) + "\n";
+                case CLASS:
+                    return "";
                 default:
-                    throw new NotImplementedException(operand);
+                    throw new NotImplementedException(operand.getType().getTypeOfElement());
             }
         }
 
@@ -326,15 +373,17 @@ public class OllirToJasmin {
     private String getCodeInvokeVirtual(CallInstruction callInstruction){
         var code = new StringBuilder();
 
+        code.append(loadElement(callInstruction.getFirstArg()));
+
         for(var operand: callInstruction.getListOfOperands()){
             code.append(loadElement(operand));
         }
 
         code.append("invokevirtual ");
 
-        var methodClass = ((Operand) callInstruction.getFirstArg()).getName();
+        var methodClass = ((ClassType)callInstruction.getFirstArg().getType()).getName();
 
-        code.append(methodClass);
+        code.append(getFullyQualifiedName(methodClass));
 
         code.append("/");
         var calledMethod = ((LiteralElement) callInstruction.getSecondArg()).getLiteral();
@@ -351,6 +400,7 @@ public class OllirToJasmin {
 
         code.append("\n");
 
+
         return code.toString();
 
     }
@@ -358,6 +408,8 @@ public class OllirToJasmin {
 
     private String getCodeInvokeStatic(CallInstruction callInstruction){
         var code = new StringBuilder();
+
+        code.append(loadElement(callInstruction.getFirstArg()));
 
         for(var operand: callInstruction.getListOfOperands()){
             code.append(loadElement(operand));
@@ -383,6 +435,7 @@ public class OllirToJasmin {
         code.append(getJasminType(callInstruction.getReturnType()));
 
         code.append("\n");
+
 
         return code.toString();
     }
@@ -492,7 +545,7 @@ public class OllirToJasmin {
             case OBJECTREF, ARRAYREF:
                 return "astore" + getVirtualRegister(operand.getName())+ "\n";
             default:
-                throw new NotImplementedException(operand);
+                throw new NotImplementedException(operand.getType().getTypeOfElement());
         }
     }
 }
