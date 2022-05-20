@@ -37,6 +37,7 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
         addVisit(AstNode.OBJECT_CREATION_EXPRESSION, this::objectCreationExpression);
         addVisit(AstNode.CALL_EXPRESSION, this::callExprVisitor);
         addVisit(AstNode.ARGUMENTS, this::argumentsVisit);
+        addVisit(AstNode.ARRAY_ACCESS_EXPRESSION, this::arrayAccessVisit);
 
     }
 
@@ -76,6 +77,32 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
         }
 
         throw new NotImplementedException(this);
+    }
+
+    public ArrayList arrayAccessVisit(JmmNode arrayAccessNode, ArrayList children){
+        var result = new ArrayList<>();
+
+
+        String address = "";
+        String code = "";
+
+        var leftChild = visit(arrayAccessNode.getJmmChild(0));
+        var rightChild = visit(arrayAccessNode.getJmmChild(1));
+
+
+        String arrayType = ".i32";
+
+        String onlyLeftChildName = getVariableStringByName(arrayAccessNode.getJmmChild(0).get("name"),arrayAccessNode.getJmmChild(0)).get(0);
+
+        address = "temp_" + tempVarCounter++ + arrayType;
+        code = leftChild.get(0).toString() + rightChild.get(0).toString() +
+                address + " :=" + arrayType + " " + onlyLeftChildName + "[" + rightChild.get(1) + "].i32" + ";\n";
+
+
+        result.add(code);
+        result.add(address);
+
+        return result;
     }
 
     public ArrayList callExprVisitor(JmmNode callExprNode, ArrayList children){
@@ -170,7 +197,14 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
         var address = leftChild.get(1) ;
 //        String assignType = leftChild.get(1).toString().split("\\.")[1];
-        String assignType = getVariableStringByName(assignmentNode.getJmmChild(0).get("name"), assignmentNode.getJmmChild(0)).get(1).toString();
+        String assignType;
+        if(assignmentNode.getJmmChild(0).getKind().equals(AstNode.ID.toString())){
+            assignType = getVariableStringByName(assignmentNode.getJmmChild(0).get("name"), assignmentNode.getJmmChild(0)).get(1).toString();
+
+        }
+        else{ // array -> .i32
+            assignType = ".i32";
+        }
         String code;
 //        if(complete){
 //            code = leftChild.get(1) + " :=."+ assignType + " " + rightChild.get(0).toString();
@@ -178,6 +212,7 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 //        }
 //        else{
         code = rightChild.get(0).toString() + address.toString() + " :=" + assignType + " " + rightChild.get(1) + ";\n";
+
 //        }
 
         result.add(code);
@@ -195,7 +230,9 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
         if(objectCreationNode.getJmmChild(0).getKind().equals(AstNode.ID.toString())){
             var objectName = objectCreationNode.getJmmChild(0).get("name");
-            address += objectName + ")." + objectName;
+            address += objectName + ")." + objectName + ";\n";
+            var leftSideOfAssign = getVariableStringByName(objectCreationNode.getJmmParent().getJmmChild(0).get("name"), objectCreationNode);
+            address += "invokespecial(" + leftSideOfAssign.get(0) + leftSideOfAssign.get(1) + ", \"<init>\").V";
         }
         else{ // Array Declaration
             address+= "array,";
@@ -203,6 +240,7 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
             address += arrayDeclChild.get(1).toString() + ").array.i32";
 
         }
+
 
 //        var child = visit(objectCreationNode.getJmmChild(0));
 //
@@ -278,13 +316,15 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
         var code = "";
 
-        var address = literalNode.get("value");
+        String address = "";
         switch (literalNode.get("type")){
             case "int":
+                address += literalNode.get("value");
                 address += ".i32";
                 operatorStack.push(".i32");
                 break;
             case "boolean":
+                address += literalNode.get("value").equals("true")? "1": "0";
                 address += ".bool";
                 operatorStack.push(".bool");
                 break;

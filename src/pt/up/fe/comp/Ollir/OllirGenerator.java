@@ -36,6 +36,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         addVisit(AstNode.IF_ELSE_STATEMENT, this::ifElseStmtDeclaration);
         addVisit(AstNode.LITERAL, this::literalVisit);
         addVisit(AstNode.WHILE_STATEMENT, this::whileVisit);
+        addVisit(AstNode.RETURN_DECLARATION, this::returnVisit);
 
 //        addVisit(AstNode.);
 
@@ -119,7 +120,32 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
             code.append("ret.V;\n");
 
         }
+
         code.append("}\n");
+
+        return 0;
+    }
+
+    private Integer returnVisit(JmmNode returnNode, Integer dummy){
+
+        OllirThreeAddressCoder coder = new OllirThreeAddressCoder(symbolTable);
+
+        var returnStmtCode = coder.visit(returnNode.getJmmChild(0));
+
+        code.append(returnStmtCode.get(0));
+
+        code.append("ret.");
+
+
+        String methodType = OllirUtils.getOllirType(symbolTable.getReturnType(
+                AstUtils.getPreviousNode(returnNode,AstNode.METHOD_DECLARATION).get("name")
+        ).getName());
+
+        code.append(methodType).append(" ");
+
+        code.append(returnStmtCode.get(1));
+
+        code.append(";\n");
 
         return 0;
     }
@@ -207,7 +233,16 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
 
     public Integer literalVisit(JmmNode literalNode, Integer dummy){
-        code.append(literalNode.get("value")).append(".");
+        if(literalNode.get("value").equals("true")){
+            code.append("1");
+        }
+        else if(literalNode.get("value").equals("false")){
+            code.append("0");
+        }
+        else{
+            code.append(literalNode.get("value"));
+        }
+        code.append(".");
         code.append(OllirUtils.getOllirType(literalNode.get("type")));
         return 0;
     }
@@ -304,7 +339,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         code.append("new(");
         var objectName =objectCreationNode.getJmmChild(0).get("name");
         code.append(objectName).append(").");
-        code.append(objectName);
+        code.append(objectName).append("\n");
+
 
         return 0;
     }
@@ -349,39 +385,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
 
     public Integer assignmentVisit(JmmNode assignmentNode, Integer dummy){
-//        var depth = OllirUtils.getMaxDepth(assignmentNode);
-//        System.out.println("depth = " + depth);
-//        if(OllirUtils.getMaxDepth(assignmentNode) >= 0){
-//
-//        }
-//        if(assignmentNode.getJmmChild(0).getKind().equals(AstNode.BIN_OP.toString()) ||
-//                assignmentNode.getJmmChild(1).getKind().equals(AstNode.BIN_OP.toString())){
-//            var ollirOp = new OllirThreeAddressCoder();
-//
-//            var threeAdressCode = ollirOp.visit(assignmentNode).get(0);
-//            code.append(threeAdressCode);
-//
-//            return 0;
-//        }
-
-//        if(
-//                assignmentNode.getJmmChild(1).getKind().equals(AstNode.CALL_EXPRESSION.toString())){
-//
-//            var name = assignmentNode.getJmmChild(0).get("name");
-//
-//            var leftHandVar = getVariableStringByName(name, assignmentNode);
-//
-//            code.append(leftHandVar.get(0)).append(leftHandVar.get(1));
-//            code.append(" :=").append(leftHandVar.get(1)).append(" ");
-//
-//            var rightHandNode = assignmentNode.getJmmChild(1);
-//
-//            visit(rightHandNode);
-//
-//            code.append(";\n");
-//
-//            return 0;
-//        }
 
         var ollirOp = new OllirThreeAddressCoder(symbolTable);
 
@@ -395,7 +398,13 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     public Integer argumentsVisit(JmmNode arguments, Integer dummy) {
         for(var child: arguments.getChildren()){
             code.append(", ");
-            visit(child);
+            if(child.getKind().equals(AstNode.ID.toString())){
+                var childInfo = getVariableStringByName(child.get("name"), child);
+                code.append(childInfo.get(0)).append(childInfo.get(1));
+            }
+            else{
+                visit(child);
+            }
         }
         return 0;
     }

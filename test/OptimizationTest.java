@@ -93,4 +93,39 @@ public class OptimizationTest {
         var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test13.jmm"));
         TestUtils.noErrors(ollirResult);
     }
+    @Test
+    public void test14(){
+        var result = TestUtils.parse(SpecsIo.getResource("myOllirJmm/test14.jmm"));
+        System.out.println(result.getRootNode().toTree());
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test14.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
+    @Test
+    public void OllirArithmetic(){
+        var result = TestUtils.parse(SpecsIo.getResource("fixtures/public/cp2/OllirArithmetic.jmm"));
+        System.out.println(result.getRootNode().toTree());
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("fixtures/public/cp2/OllirArithmetic.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
+    @Test
+    public void OllirAssignment(){
+        var result = TestUtils.parse(SpecsIo.getResource("fixtures/public/cp2/OllirAssignment.jmm"));
+        System.out.println(result.getRootNode().toTree());
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("fixtures/public/cp2/OllirAssignment.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
+    @Test
+    public void OllirBasic(){
+        var result = TestUtils.parse(SpecsIo.getResource("fixtures/public/cp2/OllirBasic.jmm"));
+        System.out.println(result.getRootNode().toTree());
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("fixtures/public/cp2/OllirBasic.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
+    @Test
+    public void OllirMethodInvocation(){
+        var result = TestUtils.parse(SpecsIo.getResource("fixtures/public/cp2/OllirMethodInvocation.jmm"));
+        System.out.println(result.getRootNode().toTree());
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("fixtures/public/cp2/OllirMethodInvocation.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
 }

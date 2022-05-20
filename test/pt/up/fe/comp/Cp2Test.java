@@ -50,7 +50,10 @@ public class Cp2Test {
 
         var result = TestUtils.backend(ollirResult);
 
+
         var testName = new File(resource).getName();
+
+
         System.out.println(testName + ":\n" + result.getJasminCode());
         var runOutput = result.runWithFullOutput();
         assertEquals("Error while running compiled Jasmin: " + runOutput.getOutput(), 0, runOutput.getReturnValue());

@@ -20,6 +20,7 @@ public class JmmJasminEmitter implements JasminBackend{
         Map<String, String> config = new HashMap<>();
 
         String jasminCode = new OllirToJasmin(ollirResult.getOllirClass()).getCode();
+
         System.out.println("JASMIN\n" + jasminCode);
 
         return new JasminResult(ollirResult, jasminCode, Collections.emptyList());
