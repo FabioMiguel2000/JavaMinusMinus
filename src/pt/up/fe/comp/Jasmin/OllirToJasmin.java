@@ -441,14 +441,40 @@ public class OllirToJasmin {
     }
 
     private String getCodeInvokeSpecial(CallInstruction callInstruction){
+
         var code = new StringBuilder();
 
-        code.append("invokespecial <init>()V\n"); // invokeSpecial will be only used new objet creation, so only need to consider this condition
+
+        for(var operand: callInstruction.getListOfOperands()){
+            code.append(loadElement(operand));
+        }
+
+        code.append("invokespecial ");
+
+        var methodClass = ((ClassType)callInstruction.getFirstArg().getType()).getName();
+
+        code.append(getFullyQualifiedName(methodClass));
+
+        code.append("/");
+        var calledMethod = ((LiteralElement) callInstruction.getSecondArg()).getLiteral();
+        code.append(calledMethod.substring(1, calledMethod.length()-1));
+        code.append("(");
+
+        for(var operand: callInstruction.getListOfOperands()){
+            code.append(getArgumentCode(operand));
+        }
+
+        code.append(")");
+
+        code.append(getJasminType(callInstruction.getReturnType()));
+
+        code.append("\n");
 
         if(!((ClassType)callInstruction.getFirstArg().getType()).getName().equals("this")){
             code.append(this.storeValueIntoVariable((Operand) callInstruction.getFirstArg()));
         }
         return code.toString();
+
     }
 
 
