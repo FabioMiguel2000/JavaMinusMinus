@@ -30,7 +30,7 @@ public class OperationType extends PreorderJmmVisitor<Integer, Integer> implemen
         //System.out.println(nodeValue);
 
         String res = _typeCheck(node);
-        System.out.println(res);
+        //System.out.println(res);
 
         if(res.equals("null")){
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC,
@@ -86,7 +86,6 @@ public class OperationType extends PreorderJmmVisitor<Integer, Integer> implemen
                 return "boolean";
             }
             if( left.equals("int") && right.equals("int") ) {
-                System.out.println(" this is int");
                 return "int";
             }
         }

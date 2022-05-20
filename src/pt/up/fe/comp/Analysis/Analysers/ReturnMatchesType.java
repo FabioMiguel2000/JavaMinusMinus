@@ -29,7 +29,6 @@ public class ReturnMatchesType extends PreorderJmmVisitor<Integer, Integer> impl
         var returnType = typeCheck(node.getJmmChild(0));
         var methodType = getMethodType(node.getJmmParent().get("name"));
         if (!typesMatch(methodType, returnType)) {
-            System.out.println("return return");
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC,
                     Integer.valueOf(node.get("line")) , Integer.valueOf(node.get("col")),
                     "Return type doesn't match with method."));
@@ -42,6 +41,7 @@ public class ReturnMatchesType extends PreorderJmmVisitor<Integer, Integer> impl
         // fazer cuidado com os import types
         // ver se o tipo retornado e o de um import / extends
         // ver tb se e do tipo da class
+        if (returnType.equals("import")) return true;
         return methodType.equals(returnType);
     }
 
@@ -52,6 +52,7 @@ public class ReturnMatchesType extends PreorderJmmVisitor<Integer, Integer> impl
     }
 
    private String typeCheck(JmmNode node) {
+       // TODO : rever os int que sao array
        var myKind = node.getKind();
 
        if (myKind.equals(AstNode.BIN_OP.toString())) {
@@ -67,8 +68,24 @@ public class ReturnMatchesType extends PreorderJmmVisitor<Integer, Integer> impl
        if (myKind.equals(AstNode.ID.toString())) {
            return getIdType(node);
        }
-       if (myKind.equals(AstNode.METHOD_DECLARATION.toString())) {
-           return "null"; // TODO: implement method
+       if (myKind.equals(AstNode.CALL_EXPRESSION.toString())) {
+           var base = node.getJmmChild(0);
+           var base2 = getIdType(base);
+           if (base2.equals("null")) {
+               var base3 = base.get("name");
+               // procurar na minha class
+               if (base3.equals(symbolTable.getClassName())) {
+                   return symbolTable.getReturnType(node.getJmmChild(1).get("name")).getName();
+               }
+               // fora da class
+               return "import";
+           }
+           // caso o call exp seja uma var , ver se da match com o class name
+           if (base2.equals(symbolTable.getClassName())) {
+               return symbolTable.getReturnType(node.getJmmChild(1).get("name")).getName();
+           }
+
+           return "import";
        }
 
        return "null";
@@ -91,7 +108,7 @@ public class ReturnMatchesType extends PreorderJmmVisitor<Integer, Integer> impl
             if(node.get("name").equals(field.getName()))
                 return field.getType().getName();
         }
-        return "";
+        return "null";
     }
 
     @Override
