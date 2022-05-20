@@ -32,7 +32,9 @@ public class JmmAnalyser implements JmmAnalysis {
                 new VarIsNotDeclared(symbolTable, parserResult.getRootNode()),
                 new OperationType(symbolTable, parserResult.getRootNode()),
                 new ConditionExpressionMustBeBool(symbolTable, parserResult.getRootNode()),
-                new AssignType(symbolTable, parserResult.getRootNode())
+                new AssignType(symbolTable, parserResult.getRootNode()),
+                new MethodCallEqualsMethodDeclaration(symbolTable, parserResult.getRootNode()),
+                new ReturnMatchesType(symbolTable, parserResult.getRootNode())
                 );
 
         for(var analyser : analysers){
