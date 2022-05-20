@@ -29,22 +29,26 @@ public class AssignType extends PreorderJmmVisitor<Integer, Integer> implements 
         JmmNode leftChild = node.getJmmChild(0);
         JmmNode rightChild = node.getJmmChild(1);
 
-        String leftIdType = "";
-        try{
-            leftIdType = getIdType(leftChild).getName();
-        }catch(Exception e){
-            if (leftChild.getKind().equals(AstNode.ARRAY_ACCESS_EXPRESSION.toString())){
-                leftIdType = getIdType(leftChild.getJmmChild(0)).getName();
-            }
+        //try{
+        //        //    leftIdType = getIdType(leftChild).getName();
+        //        //}catch(Exception e){
+        //        //    if (leftChild.getKind().equals(AstNode.ARRAY_ACCESS_EXPRESSION.toString())){
+        //        //        leftIdType = getIdType(leftChild.getJmmChild(0)).getName();
+        //        //    }
+        //        //}
+        String leftIdType = typeCheck(leftChild);
+
+        String rightIdType = typeCheck(rightChild);
+        System.out.println("RIGHT = " + rightIdType);
+
+        if (leftIdType.equals("import")) {
+            return 0;
+        }
+        if (rightIdType.equals("import")) {
+            return 0;
         }
 
-        System.out.println("LEFT = " + leftIdType);
-
-        String rightIdType = _typeCheck(rightChild);
-        //System.out.println("RIGHT = " + rightIdType);
-
-        if (rightIdType.equals("null")){
-            if(rightChild.getKind().equals(AstNode.OBJECT_CREATION_EXPRESSION.toString())){
+        if (rightIdType.equals("new")){
 
                 JmmNode grandchild = rightChild.getJmmChild(0);
                 //System.out.println("---> "+ grandchild);
@@ -57,12 +61,17 @@ public class AssignType extends PreorderJmmVisitor<Integer, Integer> implements 
                 }else{ // ID
                     //System.out.println("-------->" + grandchild.get("name"));
                     //System.out.println("tou aqui dentro");
-                    rightIdType = leftIdType;
+                    //rightIdType = leftIdType;
                     //TODO: caso rightChild = 'new qqcoisa()'
+                    var c = symbolTable.getClassName();
+                    if (grandchild.get("name").equals(c)) {
+                        rightIdType = c;
+                    } else {
+                        rightIdType = "import";
+                    }
 
                 }
 
-            }
 
         }
 
@@ -76,18 +85,18 @@ public class AssignType extends PreorderJmmVisitor<Integer, Integer> implements 
 
     public Type getIdType(JmmNode node){
         var father = AstUtils.getPreviousNode(node, AstNode.METHOD_DECLARATION);
-        //localvars
+        //LocalVars
         for (var localVariable :symbolTable.getLocalVariables( father.get("name") )) {
             if(node.get("name").equals(localVariable.getName()))
                 return localVariable.getType();
         }
-        //params
+        //Params
         for (var param :symbolTable.getParameters( father.get("name") )) {
             if(node.get("name").equals(param.getName()))
                 return param.getType();
         }
 
-        //fields
+        //Fields
         for (var field :symbolTable.getFields() ) {
             if(node.get("name").equals(field.getName()))
                 return field.getType();
@@ -95,24 +104,53 @@ public class AssignType extends PreorderJmmVisitor<Integer, Integer> implements 
         return null;
     }
 
-    private String _typeCheck(JmmNode node) {
+    public boolean isTypeExternal(Type type) {
+        if (type == null) return false;
+        var type_name = type.getName();
+        // check extend
+        var extend = symbolTable.getSuper();
+        // check imports
+        var imports = symbolTable.getImports();
+        // add extend to loop if not null
+        if (extend != null)
+            imports.add(0, extend);
+        for (var t: imports) {
+            if (type_name.equals(t))
+                return true;
+        }
+
+        return false;
+    }
+
+    private String typeCheck(JmmNode node) {
         var myKind = node.getKind();
 
         if (myKind.equals(AstNode.BIN_OP.toString())) {
-            var left = _typeCheck(node.getJmmChild(0));
 
             if (node.get("value").equals("&&") || node.get("value").equals("<")) {
                 return "boolean";
             }
-            if( left.equals("int") )
-                return "int";
+            return "int";
         }
 
         if (myKind.equals(AstNode.LITERAL.toString())) {
             return node.get("type");
         }
+        if (myKind.equals(AstNode.OBJECT_CREATION_EXPRESSION.toString())) {
+            return "new";
+        }
         if (myKind.equals(AstNode.ID.toString())) {
-            return getIdType(node).getName();
+            var type = getIdType(node);
+            if (type == null) return "null";
+            if (isTypeExternal(type)) {
+                return "import";
+            }
+
+            return type.getName();
+        }
+        if (myKind.equals(AstNode.ARRAY_ACCESS_EXPRESSION.toString())) {
+            // if it's an array[] it produces an id as child 0 , just return its type
+            return typeCheck(node.getJmmChild(0));
         }
         if (myKind.equals(AstNode.METHOD_DECLARATION.toString())) {
             return "null"; // TODO: implement method
