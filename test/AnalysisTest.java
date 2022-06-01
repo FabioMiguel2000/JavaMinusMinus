@@ -31,8 +31,8 @@ public class AnalysisTest {
     }
 
     // Testes located inside myAnalysis folder
-    @Test
-    public void fail_test1() { test_mustFail("FindMaximum2.jmm"); }
+    // @Test
+    // public void fail_test1() { test_mustFail("FindMaximum2.jmm"); }
 
     @Test
     public void pass_test1() { test_noErrors("FindMaximum.jmm"); }

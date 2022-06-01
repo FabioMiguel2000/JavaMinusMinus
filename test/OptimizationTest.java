@@ -128,4 +128,11 @@ public class OptimizationTest {
         var ollirResult = TestUtils.optimize(SpecsIo.getResource("fixtures/public/cp2/OllirMethodInvocation.jmm"));
         TestUtils.noErrors(ollirResult);
     }
+    @Test
+    public void test15(){
+        var result = TestUtils.parse(SpecsIo.getResource("myOllirJmm/test15.jmm"));
+        System.out.println(result.getRootNode().toTree());
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test15.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
 }

@@ -190,8 +190,10 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
     public ArrayList assignmentVisit(JmmNode assignmentNode, ArrayList children){
 
         var result = new ArrayList<>();
+        String code;
 
         var leftChild = visit(assignmentNode.getJmmChild(0));
+
         var rightChild = visit(assignmentNode.getJmmChild(1));
 
 
@@ -205,12 +207,25 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
         else{ // array -> .i32
             assignType = ".i32";
         }
-        String code;
+
 //        if(complete){
 //            code = leftChild.get(1) + " :=."+ assignType + " " + rightChild.get(0).toString();
 //
 //        }
 //        else{
+        for(var field: symbolTable.getFields()){
+            if(field.getName().equals(assignmentNode.getJmmChild(0).get("name"))){
+                // Significa que e' um field
+                code = rightChild.get(0).toString();
+                code += "putfield(this, "+ address.toString() + ", ";
+                code += rightChild.get(1) + ").V;\n";
+                result.add(code);
+                result.add(address);
+                return result;
+            }
+        }
+
+
         code = rightChild.get(0).toString() + address.toString() + " :=" + assignType + " " + rightChild.get(1) + ";\n";
 
 //        }
@@ -381,22 +396,47 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
         var code = "";
 
-
         var variable = getVariableStringByName(idNode.get("name"), idNode);
 
         String address;
+
         if(variable.size() == 0){
+            // for names, like method name etc...
             address = idNode.get("name");
         }else{
+            // for variables
+            if(!(idNode.getJmmParent().getKind().equals(AstNode.ASSIGNMENT.toString()) && checkIfField(idNode.getJmmParent().getJmmChild(0)))){
+                // avoids things like this from happen putfield(this, temp_0.i32, temp_2.i32).V;
+                for(var field: symbolTable.getFields()){
+                    if(field.getName().equals(idNode.get("name"))){
+                        // if it is a field
+                        address = "temp_" + tempVarCounter++ + variable.get(1);
+                        code += address + " :=" + variable.get(1) + " " + "getfield(this, "+ variable.get(0) +variable.get(1)+ ")"+variable.get(1) + ";\n";
+
+                        result.add(code);
+                        result.add(address);
+                        return result;
+                    }
+                }
+            }
+
             address = variable.get(0) + variable.get(1);
-
         }
-
 
         result.add(code);
         result.add(address);
 
         return result;
+    }
+
+    public boolean checkIfField(JmmNode idNode){
+        for(var field: symbolTable.getFields()){
+            if(field.getName().equals(idNode.get("name"))){
+                // if it is a field
+                return true;
+            }
+        }
+        return false;
     }
 
 
