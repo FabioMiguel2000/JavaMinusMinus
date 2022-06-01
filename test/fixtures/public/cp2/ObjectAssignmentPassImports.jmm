@@ -14,7 +14,6 @@ class Test {
 		a = new A();
 		b = new B();
 		
-		// A and B imported, assume it is correct
 		a = b;
 		
 		return a;

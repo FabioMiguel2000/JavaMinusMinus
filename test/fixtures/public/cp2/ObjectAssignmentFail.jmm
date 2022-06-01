@@ -13,7 +13,6 @@ class A {
 		a = new A();
 		b = new B();
 		
-		// A does not extend B
 		a = b;
 		
 		return a;
