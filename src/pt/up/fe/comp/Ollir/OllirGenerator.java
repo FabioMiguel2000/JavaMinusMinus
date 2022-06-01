@@ -14,12 +14,15 @@ import java.util.stream.Collectors;
 public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     private final StringBuilder code;
     private final SymbolTable symbolTable;
+
+    private String temporaryStorage;
     private int ifCounter;
     private int loopCounter;
 
     public OllirGenerator(SymbolTable symbolTable){
         this.code = new StringBuilder();
         this.symbolTable = symbolTable;
+        this.temporaryStorage = "";
         ifCounter = 0;
         loopCounter = 0;
 
@@ -307,6 +310,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
         var invokeType = getInvokeCode(callExpr);
 
+        visit(callExpr.getJmmChild(2));
+
         code.append(invokeType).append("(");
 
         visit(callExpr.getJmmChild(0));
@@ -318,7 +323,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         code.append(", \"");
         visit(callExpr.getJmmChild(1));
         code.append("\"");
-        visit(callExpr.getJmmChild(2));
+//        visit(callExpr.getJmmChild(2));
+        code.append(this.temporaryStorage);
         code.append(")");
 
         var parentNode = callExpr.getJmmParent();
@@ -396,16 +402,30 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
 
     public Integer argumentsVisit(JmmNode arguments, Integer dummy) {
+        OllirThreeAddressCoder coder = new OllirThreeAddressCoder(symbolTable);
+        StringBuilder tempCode = new StringBuilder();
+        this.temporaryStorage = "";
         for(var child: arguments.getChildren()){
-            code.append(", ");
-            if(child.getKind().equals(AstNode.ID.toString())){
-                var childInfo = getVariableStringByName(child.get("name"), child);
-                code.append(childInfo.get(0)).append(childInfo.get(1));
-            }
-            else{
-                visit(child);
-            }
+//            code.append(", ");
+//            if(child.getKind().equals(AstNode.ID.toString())){
+//                var childInfo = getVariableStringByName(child.get("name"), child);
+//                code.append(childInfo.get(0)).append(childInfo.get(1));
+//            }
+//            else{
+//                visit(child);
+//            }
+
+
+            var argCode = coder.visit(child);
+
+            code.append(argCode.get(0));
+            this.temporaryStorage += ", " +argCode.get(1);
+//            tempCode.append(", ");
+//            tempCode.append(argCode.get(1));
+
         }
+
+        code.append(tempCode);
         return 0;
     }
 

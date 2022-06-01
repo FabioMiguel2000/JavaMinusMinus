@@ -1,0 +1,23 @@
+import ioPlus;
+import BoardBase;
+import java.io.File;
+
+class HelloWorld extends BoardBase{
+    int field1;
+	public static void main(String[] args) {
+        ioPlus.printHelloWorld(field1, 1+2+3);
+        ioPlus.printHelloWorld(field1);
+        ioPlus.printHelloWorld();
+
+        HelloWorld hello;
+
+        hello.func(1+2+3);
+	}
+
+	public int func(int i) {
+
+
+   		return 0;
+   	}
+
+}
