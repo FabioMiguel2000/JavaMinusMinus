@@ -2,15 +2,15 @@ import ioPlus;
 import BoardBase;
 import java.io.File;
 
+
 class HelloWorld extends BoardBase{
 	public static void main(String[] args) {
 
         ioPlus.print();
         int a;
-        Method b;
-        b = new Method();
 
-        a = 2 * b.add(b.add(1,2),2) + 1;
+        a = 2 * 2 + 1;
 	}
+
 
 }

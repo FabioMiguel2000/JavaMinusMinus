@@ -113,8 +113,8 @@ public class AssignType extends PreorderJmmVisitor<Integer, Integer> implements 
         // check imports
         var imports = symbolTable.getImports();
         // add extend to loop if not null
-        if (extend != null)
-            imports.add(0, extend);
+//        if (extend != null)           // TODO: MR.GOLOSO PLZ FIX THIS, THIS IS CAUSING TROUBLE IN OLLIR
+//            imports.add(0, extend);
         for (var t: imports) {
             if (type_name.equals(t))
                 return true;

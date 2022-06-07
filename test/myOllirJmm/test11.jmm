@@ -5,15 +5,11 @@ import java.io.File;
 class HelloWorld extends BoardBase{
 	public static void main(String[] args) {
 
-        bool a;
-        Board b;
-        bool d;
+        boolean a;
+        boolean d;
         int c;
-        d = false;
-        b = new Board();
-        a = b.add(1+2) < 3;
-
-        if(b.add(1+2) < 3 && true ){
+        d = true;
+        if(2 < 3 && true ){
             c = 3;
         }
         else{
