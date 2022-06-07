@@ -1,6 +1,6 @@
 import io;
 import Other;
-// import Person;
+
 
 class BasicMethods extends Other {
 

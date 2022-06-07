@@ -22,7 +22,7 @@ class HelloWorld extends BoardBase{
 
         b.chapeu();
 
-		args = ioPlus.printHelloWorld();
+		ioPlus.printHelloWorld();
 
 		String field4;
 	}

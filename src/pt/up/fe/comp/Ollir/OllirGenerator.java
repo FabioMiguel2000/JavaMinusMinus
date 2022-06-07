@@ -50,6 +50,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
 
     private Integer programVisit(JmmNode program, Integer dummy){
+        System.out.println(symbolTable.getImports());
         for(var importString: symbolTable.getImports()){
             code.append("import ").append(importString).append(";\n");
         }
@@ -252,10 +253,16 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
     public Integer varDeclaration(JmmNode varDeclNode, Integer dummy){
         var parent = varDeclNode.getJmmParent();
-        if(parent.getKind().equals(AstNode.CLASS_DECLARATION.toString())){
+        if(parent.getKind().equals(AstNode.CLASS_DECLARATION.toString())){  // Only field declaration is converted to ollir
             code.append(".field private ").append(varDeclNode.getJmmChild(1).get("name")).append(".");
-            var type = varDeclNode.getJmmChild(0).get("name");
-            code.append(OllirUtils.getOllirType(type)).append(";\n");
+
+            String type = "";
+            if(varDeclNode.getJmmChild(0).get("isArray").equals("true")){
+                type += "array.";
+            }
+            type += OllirUtils.getOllirType(varDeclNode.getJmmChild(0).get("name")) + ";\n";
+//            var isArray = varDeclNode.getJmmChild(0).get("")
+            code.append(type);
         }
 
         return 0;

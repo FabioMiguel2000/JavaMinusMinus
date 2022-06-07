@@ -142,4 +142,13 @@ public class OptimizationTest {
         var ollirResult = TestUtils.optimize(SpecsIo.getResource("myOllirJmm/test16.jmm"));
         TestUtils.noErrors(ollirResult);
     }
+    @Test
+    public void cpfTempTest(){
+        var result = TestUtils.parse(SpecsIo.getResource("fixtures/public/cpf/3_ollir/basic/BasicMethodsClass.jmm"));
+        System.out.println(result.getRootNode().toTree());
+        var result2 = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cpf/3_ollir/basic/BasicMethodsClass.jmm")); // Calls JmmAnalyser semanticAnalysis()
+        System.out.println("SymbolTable: \n" + result2.getSymbolTable().print());
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("fixtures/public/cpf/3_ollir/basic/BasicMethodsClass.jmm"));
+        TestUtils.noErrors(ollirResult);
+    }
 }
