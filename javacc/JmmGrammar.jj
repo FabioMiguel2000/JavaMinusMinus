@@ -6,7 +6,15 @@ TOKENS_ARE_NODES = false;
 
 SKIP : " " | "\t" | "\r" | "\n";
 
+SKIP : < "//"(~["\n"])* >;
+
+
+SKIP:
+     <"/*" (~["*"])* "*" (~["*","/"] (~["*"])* "*" | "*")* "/" >
+    | <"/*" ( ~["*"] | ("*")+ ~["*","/"] )* ("*")*>;
+
 TOKEN :
+
 	< PLUS : "+" > |
 	< MINUS : "-" > |
 	< TIMES : "*" > |
@@ -56,6 +64,8 @@ TOKEN :
 	< LOWER_CASE: ["a"-"z"] > | 
     < UPPER_CASE: ["A"-"Z"] > 
 ;
+
+
 
 Program :
 	(ImportDeclaration)* ClassDeclaration <EOF>

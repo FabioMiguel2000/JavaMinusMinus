@@ -303,9 +303,20 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
             if(imports.get(i).equals(callExpr.getJmmChild(0).get("name"))){
                 return "invokestatic";
             }
+
         }
 
-        throw new NotImplementedException(this);
+        // call of a method from an imported object
+        // check first type of that object is declared in the import
+        String type = getVariableStringByName(callExpr.getJmmChild(0).get("name"), callExpr).get(1);
+        for(int i = 0; i < imports.size(); i++){
+            if(imports.get(i).equals(type.substring(1))){
+
+                return "invokevirtual";
+            }
+        }
+
+        throw new NotImplementedException(callExpr);
     }
 
 

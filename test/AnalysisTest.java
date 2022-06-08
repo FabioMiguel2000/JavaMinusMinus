@@ -30,10 +30,23 @@ public class AnalysisTest {
         TestUtils.mustFail(result2);
     }
 
+
+    public void test_parser_must_fail(String testLocationFile){
+        var testLocation = "myAnalysis/" + testLocationFile;
+        var result = TestUtils.parse(SpecsIo.getResource(testLocation));
+        TestUtils.mustFail(result);
+    }
+
     // Testes located inside myAnalysis folder
     // @Test
     // public void fail_test1() { test_mustFail("FindMaximum2.jmm"); }
 
     @Test
     public void pass_test1() { test_noErrors("FindMaximum.jmm"); }
+
+    @Test
+    public void fail_blow_up() { test_parser_must_fail("BlowUp.jmm"); }
+
+
+
 }

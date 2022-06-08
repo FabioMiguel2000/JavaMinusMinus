@@ -94,9 +94,16 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
         String onlyLeftChildName = getVariableStringByName(arrayAccessNode.getJmmChild(0).get("name"),arrayAccessNode.getJmmChild(0)).get(0);
 
+        String insideArrayAccessAddress = "temp_" + tempVarCounter++ + ".i32";
+
+        String insideArrayAccessCode = insideArrayAccessAddress + " :=.i32 " + rightChild.get(1);
+
         address = "temp_" + tempVarCounter++ + arrayType;
-        code = leftChild.get(0).toString() + rightChild.get(0).toString() +
-                address + " :=" + arrayType + " " + onlyLeftChildName + "[" + rightChild.get(1) + "].i32" + ";\n";
+
+
+
+        code = leftChild.get(0).toString() + rightChild.get(0).toString() +insideArrayAccessCode + ";\n" +
+                address + " :=" + arrayType + " " + onlyLeftChildName + "[" +insideArrayAccessAddress + "].i32" + ";\n";
 
 
         result.add(code);
@@ -191,8 +198,35 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
         var result = new ArrayList<>();
         String code;
+        ArrayList leftChild = new ArrayList<>();
+        if(assignmentNode.getJmmChild(0).getKind().equals(AstNode.ARRAY_ACCESS_EXPRESSION.toString())){
 
-        var leftChild = visit(assignmentNode.getJmmChild(0));
+            JmmNode arrayAccessNode = assignmentNode.getJmmChild(0);
+
+            String ArrayAccessAddress = "";
+            String ArrayAccessCode = "";
+
+            var ArrayAccessLeftChild = visit(arrayAccessNode.getJmmChild(0));
+            var ArrayAccessRightChild = visit(arrayAccessNode.getJmmChild(1));
+
+            String onlyLeftChildName = getVariableStringByName(arrayAccessNode.getJmmChild(0).get("name"),arrayAccessNode.getJmmChild(0)).get(0);
+
+            String insideArrayAccessAddress = "temp_" + tempVarCounter++ + ".i32";
+
+            String insideArrayAccessCode = insideArrayAccessAddress + " :=.i32 " + ArrayAccessRightChild.get(1);
+
+            ArrayAccessAddress = onlyLeftChildName + "[" +insideArrayAccessAddress + "].i32";//==> $1.a[temp_0.i32].i32
+
+            ArrayAccessCode = ArrayAccessLeftChild.get(0).toString() + ArrayAccessRightChild.get(0).toString() +insideArrayAccessCode + ";\n";
+
+            leftChild.add(ArrayAccessCode);
+            leftChild.add(ArrayAccessAddress);
+        }
+        else{
+            leftChild = visit(assignmentNode.getJmmChild(0));
+        }
+
+
 
         var rightChild = visit(assignmentNode.getJmmChild(1));
 
@@ -226,7 +260,7 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
         }
 
 
-        code = rightChild.get(0).toString() + address.toString() + " :=" + assignType + " " + rightChild.get(1) + ";\n";
+        code = leftChild.get(0).toString() + rightChild.get(0).toString() + address.toString() + " :=" + assignType + " " + rightChild.get(1) + ";\n";
 
 //        }
 
