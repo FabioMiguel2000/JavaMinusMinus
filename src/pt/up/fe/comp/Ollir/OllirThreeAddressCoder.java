@@ -38,7 +38,7 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
         addVisit(AstNode.CALL_EXPRESSION, this::callExprVisitor);
         addVisit(AstNode.ARGUMENTS, this::argumentsVisit);
         addVisit(AstNode.ARRAY_ACCESS_EXPRESSION, this::arrayAccessVisit);
-
+        addVisit(AstNode.LENGTH_PROPERTY, this::lengthPropertyVisit);
     }
 
     public String getInvokeCode(JmmNode callExpr){
@@ -94,16 +94,20 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
         String onlyLeftChildName = getVariableStringByName(arrayAccessNode.getJmmChild(0).get("name"),arrayAccessNode.getJmmChild(0)).get(0);
 
-        String insideArrayAccessAddress = "temp_" + tempVarCounter++ + ".i32";
+        String insideArrayAccessAddress = "";
+        String insideArrayAccessCode = "";
+        if(arrayAccessNode.getJmmChild(1).getKind().equals(AstNode.LITERAL.toString())){
+            insideArrayAccessAddress = "temp_" + tempVarCounter++ + ".i32";
 
-        String insideArrayAccessCode = insideArrayAccessAddress + " :=.i32 " + rightChild.get(1);
+            insideArrayAccessCode = insideArrayAccessAddress + " :=.i32 " + rightChild.get(1);
+        }
+
 
         address = "temp_" + tempVarCounter++ + arrayType;
 
 
-
-        code = leftChild.get(0).toString() + rightChild.get(0).toString() +insideArrayAccessCode + ";\n" +
-                address + " :=" + arrayType + " " + onlyLeftChildName + "[" +insideArrayAccessAddress + "].i32" + ";\n";
+        code = leftChild.get(0).toString() + rightChild.get(0).toString() + (insideArrayAccessCode.equals("") ? "": (insideArrayAccessCode)+ ";\n")  +
+                address + " :=" + arrayType + " " + onlyLeftChildName + "[" +(insideArrayAccessAddress.equals("") ? rightChild.get(1): insideArrayAccessAddress) + "].i32" + ";\n";
 
 
         result.add(code);
@@ -145,7 +149,18 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
         var assignNode =AstUtils.getPreviousNode(callExprNode, AstNode.ASSIGNMENT);
         String type;
         if(assignNode == null){
-            type = ".V";
+            if(AstUtils.getPreviousNode(callExprNode, AstNode.ARRAY_ACCESS_EXPRESSION) != null){
+                // check if contained inside an array access, if so type will be int
+                type = ".i32";
+            }
+//            if(callExprNode.getJmmParent().getKind().equals(AstNode.ARRAY_ACCESS_EXPRESSION.toString())){
+//                // check if contained inside an array access, if so type will be int
+//                type = ".i32";
+//            }
+            else{
+                type = ".V";
+
+            }
         }
         else{
             type = getVariableStringByName(assignNode.getJmmChild(0).get("name"), assignNode).get(1);
@@ -420,6 +435,30 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
             }
             counter ++;
         }
+
+        return result;
+    }
+    public ArrayList lengthPropertyVisit(JmmNode lengthPropertyNode, ArrayList children){
+        var result = new ArrayList<>();
+        String code = "";
+        String address = "";
+
+        address += "temp_" + tempVarCounter++ + ".i32";
+
+
+
+        code += address + " :=.i32 arraylength(";
+
+        var child = getVariableStringByName(lengthPropertyNode.getJmmChild(0).get("name"), lengthPropertyNode.getJmmChild(0));
+
+        code += child.get(0) + child.get(1);
+
+        code += ").i32;\n";
+
+//        arraylength($1.A.array.i32).i32;
+
+        result.add(code);
+        result.add(address);
 
         return result;
     }

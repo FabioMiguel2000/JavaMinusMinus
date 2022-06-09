@@ -38,7 +38,7 @@ public class JmmSymbolTableFiller extends PreorderJmmVisitor<JmmSymbolTableBuild
         var importString = importDecl.getChildren().stream()
                 .map(id->id.get("name")).collect(Collectors.joining("."));    // for imports like import ioPlus.somthin.s;
 
-        System.out.println("ADDING IMPORT: " + importString);
+//        System.out.println("ADDING IMPORT: " + importString);
 
         symbolTable.addImport(importString);
 
