@@ -7,13 +7,17 @@ import pt.up.fe.specs.util.classmap.FunctionClassMap;
 import pt.up.fe.specs.util.exceptions.NotImplementedException;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class OllirToJasmin {
     private final ClassUnit classUnit;
     HashMap<String, Descriptor> varTable;
+
+    private int labelCounter;
     public OllirToJasmin(ClassUnit classUnit){
         this.classUnit = classUnit;
+        this.labelCounter = 0;
         classUnit.buildVarTables();
     }
 
@@ -113,36 +117,62 @@ public class OllirToJasmin {
 
     }
     public String getInstructionCode(Instruction instruction, Method method){
-
+        StringBuilder code = new StringBuilder();
+        for (Map.Entry<String, Instruction> entry : method.getLabels().entrySet()) {
+            if (entry.getValue().equals(instruction)){
+                code.append(entry.getKey()).append(":\n");
+            }
+        }
         switch (instruction.getInstType()){
             case NOPER:
-                return getCode((SingleOpInstruction) instruction);
+                return code.append(getCode((SingleOpInstruction) instruction)).toString();
 
             case CALL:
-                return getCode((CallInstruction) instruction);
+                return code.append(getCode((CallInstruction) instruction)).toString();
 //            case GOTO:
 
             case ASSIGN:
-                return getAssignInstructionCode((AssignInstruction)instruction, method);
+                return code.append(getAssignInstructionCode((AssignInstruction)instruction, method)).toString();
             case RETURN:
-                return getCode((ReturnInstruction)instruction);
+                return code.append(getCode((ReturnInstruction)instruction)).toString();
 //            case BRANCH:
 //                case RETURN:
             case GETFIELD:
-                return getCode((GetFieldInstruction) instruction);
+                return code.append(getCode((GetFieldInstruction) instruction)).toString();
             case PUTFIELD:
-                return getCode((PutFieldInstruction) instruction);
+                return code.append(getCode((PutFieldInstruction) instruction)).toString();
 //            case UNARYOPER:
 //                return getCode((OpInstruction) instruction);
             case BINARYOPER:
-                return getCode((BinaryOpInstruction)instruction);
+                return code.append(getCode((BinaryOpInstruction)instruction)).toString();
 //                return getCode((OpInstruction) instruction);
+            case BRANCH:
+                return code.append(getCode((CondBranchInstruction)instruction)).toString();
+            case GOTO:
+                return code.append(getCode((GotoInstruction)instruction)).toString();
             default:
                 throw new NotImplementedException(instruction.getInstType());
         }
 
 //        return "";
     }
+
+    private String getCode(GotoInstruction gotoInstruction) {
+        StringBuilder code = new StringBuilder();
+        code.append("goto " + gotoInstruction.getLabel()).append("\n");
+        return code.toString();
+
+    }
+
+    private String getCode(CondBranchInstruction condBranchInstruction) {
+        condBranchInstruction.show();
+        StringBuilder code = new StringBuilder();
+        code.append(this.loadElement(condBranchInstruction.getOperands().get(0)))
+                .append("ifeq " + condBranchInstruction.getLabel()).append("\n");
+        return code.toString();
+
+    }
+
     public String getCode(PutFieldInstruction putFieldInstruction){
         StringBuilder code = new StringBuilder();
 
@@ -203,6 +233,17 @@ public class OllirToJasmin {
     }
     public String getCode(BinaryOpInstruction binaryOpInstruction){
         StringBuilder code = new StringBuilder();
+        if(binaryOpInstruction.getOperation().getOpType() == OperationType.ANDB){
+            int counter = this.labelCounter ++;
+            String ifqeCondition = "ifeq FALSE_BRANCH_" + counter + "\n"; // ifeq -> pop the value on stack and checks equals 0, jump to branch if so
+            code.append(loadElement(binaryOpInstruction.getLeftOperand())).append(ifqeCondition);
+            code.append(loadElement(binaryOpInstruction.getRightOperand())).append(ifqeCondition);
+
+            code.append("iconst_1\n").append("goto ").append("END_IF_").append(counter).append("\n").
+                    append("FALSE_BRANCH_" + counter).append(":\n").
+                    append("iconst_0\n").append("END_IF_").append(counter).append(":\n");
+            return code.toString();
+        }
         code.append(loadElement(binaryOpInstruction.getLeftOperand()));
         code.append(loadElement(binaryOpInstruction.getRightOperand()));
 
@@ -226,6 +267,9 @@ public class OllirToJasmin {
             case LTH:
                 code.append("TODO:LTH_NOT_IMPLEMENTED\n");
                 break;
+//            case ANDB:
+//                String ifqeCondition = "ifeq IF_TRUE_" + this.labelCounter ++ + "\n";
+//                code.
             default:
                 throw new NotImplementedException(binaryOpInstruction.getOperation().getOpType());
         }
@@ -430,6 +474,10 @@ public class OllirToJasmin {
 
         if(type instanceof ArrayType){
             return "[" + getJasminType(((ArrayType) type).getTypeOfElements());
+        }
+        if(type.getTypeOfElement().equals(ElementType.OBJECTREF)){
+            String objectName = ((ClassType)type).getName();
+            return "L" + this.getFullyQualifiedName(objectName) + ";";
         }
         return getJasminType(type.getTypeOfElement());
     }

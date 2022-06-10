@@ -319,40 +319,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         throw new NotImplementedException(callExpr);
     }
 
-    public Integer arrayAccessVisit(JmmNode arrayAccessNode, Integer dummy){
-
-
-        System.out.println("came inside array Access");
-//        String address = "";
-//        String code = "";
-//
-//        var leftChild = visit(arrayAccessNode.getJmmChild(0));
-//        var rightChild = visit(arrayAccessNode.getJmmChild(1));
-//
-//
-//        String arrayType = ".i32";
-//
-//        String onlyLeftChildName = getVariableStringByName(arrayAccessNode.getJmmChild(0).get("name"),arrayAccessNode.getJmmChild(0)).get(0);
-//
-//        String insideArrayAccessAddress = "temp_" + tempVarCounter++ + ".i32";
-//
-//        String insideArrayAccessCode = insideArrayAccessAddress + " :=.i32 " + rightChild.get(1);
-//
-//        address = "temp_" + tempVarCounter++ + arrayType;
-//
-//
-//
-//        code = leftChild.get(0).toString() + rightChild.get(0).toString() +insideArrayAccessCode + ";\n" +
-//                address + " :=" + arrayType + " " + onlyLeftChildName + "[" +insideArrayAccessAddress + "].i32" + ";\n";
-//
-//
-//        result.add(code);
-//        result.add(address);
-
-        return 0;
-    }
-
-
 
     public Integer callExprVisit(JmmNode callExpr, Integer dummy){
         // todo see details on video 02:43:00

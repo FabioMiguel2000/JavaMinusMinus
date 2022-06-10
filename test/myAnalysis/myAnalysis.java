@@ -111,6 +111,6 @@ public class myAnalysis {
     myJmmAnalyser FindMaximum = new myJmmAnalyser("FindMaximum.jmm");
     @Test
     public void test_01_01_FindMaximum() { FindMaximum.run_noErrors(test.ArrayIndexIsTypeInteger); }
-    @Test
-    public void test_01_02_FindMaximum() { FindMaximum.run_mustFail(test.ArrayAccessIsDoneOverArray); }
+//    @Test
+//    public void test_01_02_FindMaximum() { FindMaximum.run_mustFail(test.ArrayAccessIsDoneOverArray); }
 }

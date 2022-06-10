@@ -9,7 +9,7 @@ class Arithmetic_and {
 		if(a) {
 			io.print(1);
 		} else {
-			io.print(0);		
+			io.print(0);
 		}
 
 	}
