@@ -150,11 +150,28 @@ public class OllirToJasmin {
                 return code.append(getCode((CondBranchInstruction)instruction)).toString();
             case GOTO:
                 return code.append(getCode((GotoInstruction)instruction)).toString();
+            case UNARYOPER:
+                return code.append(getCode((UnaryOpInstruction)instruction)).toString();
             default:
                 throw new NotImplementedException(instruction.getInstType());
         }
 
 //        return "";
+    }
+
+    private String getCode(UnaryOpInstruction unaryOpInstruction) {
+        StringBuilder code = new StringBuilder();
+
+//        unaryOpInstruction.show();
+
+        code.append(loadElement(unaryOpInstruction.getOperand()));
+        int counter = this.labelCounter ++;
+        code.append("ifeq FALSE_BRANCH_" + counter + "\n"); // ifeq -> pop the value on stack and checks equals 0, jump to branch if so
+
+        code.append("iconst_0\n").append("goto ").append("END_IF_").append(counter).append("\n").
+                append("FALSE_BRANCH_" + counter).append(":\n").
+                append("iconst_1\n").append("END_IF_").append(counter).append(":\n");
+        return code.toString();
     }
 
     private String getCode(GotoInstruction gotoInstruction) {
@@ -165,7 +182,7 @@ public class OllirToJasmin {
     }
 
     private String getCode(CondBranchInstruction condBranchInstruction) {
-        condBranchInstruction.show();
+//        condBranchInstruction.show();
         StringBuilder code = new StringBuilder();
         code.append(this.loadElement(condBranchInstruction.getOperands().get(0)))
                 .append("ifeq " + condBranchInstruction.getLabel()).append("\n");
@@ -243,6 +260,17 @@ public class OllirToJasmin {
                     append("FALSE_BRANCH_" + counter).append(":\n").
                     append("iconst_0\n").append("END_IF_").append(counter).append(":\n");
             return code.toString();
+        } else if (binaryOpInstruction.getOperation().getOpType() == OperationType.LTH) {
+            int counter = this.labelCounter ++;
+            code.append(loadElement(binaryOpInstruction.getLeftOperand()));
+            code.append(loadElement(binaryOpInstruction.getRightOperand()));
+            code.append("if_icmpge IF_GREATER_EQ_JUMP_"+counter).append("\n")  //if_icmpge -> pop the 2 values on stack and checks if value1 >= value2, jump to branch if so
+                    .append("iconst_1\n")
+                    .append("goto END_IF_").append(counter).append("\n")
+                    .append("IF_GREATER_EQ_JUMP_"+counter).append(":\n")
+                    .append("iconst_0\n")
+                    .append("END_IF_").append(counter).append(":\n");
+            return code.toString();
         }
         code.append(loadElement(binaryOpInstruction.getLeftOperand()));
         code.append(loadElement(binaryOpInstruction.getRightOperand()));
@@ -264,12 +292,6 @@ public class OllirToJasmin {
             case AND:
                 code.append("TODO:AND_NOT_IMPLEMENTED\n");
                 break;
-            case LTH:
-                code.append("TODO:LTH_NOT_IMPLEMENTED\n");
-                break;
-//            case ANDB:
-//                String ifqeCondition = "ifeq IF_TRUE_" + this.labelCounter ++ + "\n";
-//                code.
             default:
                 throw new NotImplementedException(binaryOpInstruction.getOperation().getOpType());
         }

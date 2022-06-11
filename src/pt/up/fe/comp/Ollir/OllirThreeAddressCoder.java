@@ -39,6 +39,7 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
         addVisit(AstNode.ARGUMENTS, this::argumentsVisit);
         addVisit(AstNode.ARRAY_ACCESS_EXPRESSION, this::arrayAccessVisit);
         addVisit(AstNode.LENGTH_PROPERTY, this::lengthPropertyVisit);
+        addVisit(AstNode.NOT_EXPRESSION, this::notExpressionVisit);
     }
 
     public String getInvokeCode(JmmNode callExpr){
@@ -286,6 +287,26 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
         return result;
     }
 
+    public ArrayList notExpressionVisit(JmmNode notExpressionNode, ArrayList children){
+        var result = new ArrayList<>();
+
+
+
+
+
+        var child = visit(notExpressionNode.getJmmChild(0));
+
+//        String address = "!.bool " + child.get(1);
+        String address = "temp_" + tempVarCounter++ + ".bool";
+        String code = child.get(0).toString()
+                + address + " :=.bool !.bool "  +  child.get(1) +";\n";
+
+        result.add(code);
+        result.add(address);
+
+        return result;
+    }
+
     public ArrayList objectCreationExpression(JmmNode objectCreationNode, ArrayList children){
         var result = new ArrayList<>();
 
@@ -354,6 +375,8 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
                 opString = "<.bool";
                 opType = ".bool";
                 break;
+//            case "!":
+
             default:
                 throw new NotImplementedException(this);
         }

@@ -144,11 +144,11 @@ public class OptimizationTest {
     }
     @Test
     public void cpfTempTest(){
-        var result = TestUtils.parse(SpecsIo.getResource("fixtures/public/cpf/3_ollir/arrays/ComplexArrayAccess.jmm"));
+        var result = TestUtils.parse(SpecsIo.getResource("fixtures/public/cpf/4_jasmin/control_flow/IfWhileNested.jmm"));
         System.out.println(result.getRootNode().toTree());
-        var result2 = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cpf/3_ollir/arrays/ComplexArrayAccess.jmm")); // Calls JmmAnalyser semanticAnalysis()
+        var result2 = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cpf/4_jasmin/control_flow/IfWhileNested.jmm")); // Calls JmmAnalyser semanticAnalysis()
         System.out.println("SymbolTable: \n" + result2.getSymbolTable().print());
-        var ollirResult = TestUtils.optimize(SpecsIo.getResource("fixtures/public/cpf/3_ollir/arrays/ComplexArrayAccess.jmm"));
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("fixtures/public/cpf/4_jasmin/control_flow/IfWhileNested.jmm"));
         TestUtils.noErrors(ollirResult);
     }
 }

@@ -50,7 +50,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
 
     private Integer programVisit(JmmNode program, Integer dummy){
-        System.out.println(symbolTable.getImports());
+
         for(var importString: symbolTable.getImports()){
             code.append("import ").append(importString).append(";\n");
         }
@@ -327,7 +327,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
         var invokeType = getInvokeCode(callExpr);
 
-        System.out.println(callExpr.getJmmChild(2));
+//        System.out.println(callExpr.getJmmChild(2));
         visit(callExpr.getJmmChild(2));
 
         code.append(invokeType).append("(");
