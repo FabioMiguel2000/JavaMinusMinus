@@ -117,7 +117,7 @@ public class OllirToJasmin {
 
     }
     public String getInstructionCode(Instruction instruction, Method method){
-        instruction.show();
+
         StringBuilder code = new StringBuilder();
         for (Map.Entry<String, Instruction> entry : method.getLabels().entrySet()) {
             if (entry.getValue().equals(instruction)){
@@ -179,7 +179,7 @@ public class OllirToJasmin {
 //        condBranchInstruction.show();
         StringBuilder code = new StringBuilder();
         code.append(this.loadElement(condBranchInstruction.getOperands().get(0)))
-                .append("ifeq " + condBranchInstruction.getLabel()).append("\n");
+                .append("ifne " + condBranchInstruction.getLabel()).append("\n");
         return code.toString();
 
     }

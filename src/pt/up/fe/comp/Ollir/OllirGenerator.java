@@ -217,22 +217,25 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
         code.append(coditionCode.get(0));
 
-        String address = "temp_" + coder.getTempVarCounter() + ".bool";
-        code.append(address).append(" :=.bool !.bool ").append(coditionCode.get(1)).append(";\n");
+//        String address = "temp_" + coder.getTempVarCounter() + ".bool";
+//        code.append(address).append(" :=.bool !.bool ").append(coditionCode.get(1)).append(";\n");
 
         code.append("if(");
 
 //        code.append("!.bool ").append(coditionCode.get(1));
-        code.append(address);
+//        code.append(address);
+        code.append(coditionCode.get(1));
+
 
         var ifScope = ifStmt.getJmmChild(1); // if(){ THIS PART }
 
         code.append(") goto else_" + localIfCounter +";\n");
-        visit(ifScope);
+//        visit(ifScope);
+        visit(elseStmt.getJmmChild(0));
         code.append("goto endif_" +localIfCounter + ";\n");
         code.append("else_"+localIfCounter+":\n");
-        visit(elseStmt.getJmmChild(0));
-
+//        visit(elseStmt.getJmmChild(0));
+        visit(ifScope);
         code.append("endif_"+localIfCounter +":\n");
 
 
