@@ -1,5 +1,53 @@
 # Compilers Project
 
+## GROUP 2C: 
+
+- NAME1: Bruno Pinheiro , NR1: 201705562, GRADE1: <0 to 20 value>, CONTRIBUTION1: <0 to 100 %>
+- NAME2: Fabio Huang, NR2: 201806829, GRADE2: <0 to 20 value>, CONTRIBUTION2: <0 to 100 %>
+- NAME3: Gabriel Alves, NR2: 201709532, GRADE2: <0 to 20 value>, CONTRIBUTION2: <0 to 100 %>
+- NAME4: Ivo Ribeiro, NR2: 201307718, GRADE2: <0 to 20 value>, CONTRIBUTION2: <0 to 100 %>
+
+
+ 
+
+
+GLOBAL Grade of the project: <0 to 20>
+
+ 
+
+
+## Summary
+
+This project aims to apply the knowledge and principles learnt during the course of Compilers, by designing and building a working compiler for a simple, but realistic high-level programming language called Java-- (a subset of Java). The structure of this compiler is divided into the following phases:
+1. Parsing: the input file is parsed, and an AST is generated.
+2. Semantic analysis: AST is analyzed, a symbol table is generated.
+3. High-level and low-level optimization: high-level optimizations are applied to the AST, OLLIR is generated, and low-level optimizations are applied in OLLIR.
+4. Code generation: Jasmin code is generated from the input OLLIR.
+ 
+
+
+## Semantic Analysis
+**SEMANTIC ANALYSIS: (Refer the semantic rules implemented by your tool.)
+
+ 
+
+## Code Generation
+**CODE GENERATION: (describe how the code generation of your tool works and identify the possible problems your tool has regarding code generation.)
+
+A parser was developed to perform membership test, by checking if the code belongs to Java-- language, this is achieved by tokenizing the source code and therefore producing tokens which will be checked using CFG, by the end of this phase, a Abstract Syntax Tree will be generated annotating the nodes with some extra information. This AST tree will be then used to create a Symbol Table, where the Semantic Analysis will be carried out. After that OLLIR code is generated and finally Jasmim code is produced.
+
+
+
+ 
+
+# Pros
+Nothing
+
+ 
+
+# Cons
+Everything
+
 For this project, you need to install [Java](https://jdk.java.net/), [Gradle](https://gradle.org/install/), and [Git](https://git-scm.com/downloads/) (and optionally, a [Git GUI client](https://git-scm.com/downloads/guis), such as TortoiseGit or GitHub Desktop). Please check the [compatibility matrix](https://docs.gradle.org/current/userguide/compatibility.html) for Java and Gradle versions.
 
 ## Project setup

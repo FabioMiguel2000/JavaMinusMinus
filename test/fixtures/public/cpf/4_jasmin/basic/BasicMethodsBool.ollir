@@ -6,7 +6,7 @@ BasicMethods extends Other {
     }
 
     .method public func2().bool {
-ret.bool false.bool;
+ret.bool 0.bool;
     }
 
 }
