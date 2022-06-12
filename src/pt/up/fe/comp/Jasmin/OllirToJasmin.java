@@ -117,6 +117,7 @@ public class OllirToJasmin {
 
     }
     public String getInstructionCode(Instruction instruction, Method method){
+        instruction.show();
         StringBuilder code = new StringBuilder();
         for (Map.Entry<String, Instruction> entry : method.getLabels().entrySet()) {
             if (entry.getValue().equals(instruction)){
@@ -126,26 +127,19 @@ public class OllirToJasmin {
         switch (instruction.getInstType()){
             case NOPER:
                 return code.append(getCode((SingleOpInstruction) instruction)).toString();
-
             case CALL:
                 return code.append(getCode((CallInstruction) instruction)).toString();
-//            case GOTO:
-
             case ASSIGN:
                 return code.append(getAssignInstructionCode((AssignInstruction)instruction, method)).toString();
             case RETURN:
                 return code.append(getCode((ReturnInstruction)instruction)).toString();
-//            case BRANCH:
-//                case RETURN:
+
             case GETFIELD:
                 return code.append(getCode((GetFieldInstruction) instruction)).toString();
             case PUTFIELD:
                 return code.append(getCode((PutFieldInstruction) instruction)).toString();
-//            case UNARYOPER:
-//                return getCode((OpInstruction) instruction);
             case BINARYOPER:
                 return code.append(getCode((BinaryOpInstruction)instruction)).toString();
-//                return getCode((OpInstruction) instruction);
             case BRANCH:
                 return code.append(getCode((CondBranchInstruction)instruction)).toString();
             case GOTO:
@@ -164,12 +158,12 @@ public class OllirToJasmin {
 
 //        unaryOpInstruction.show();
 
-        code.append(loadElement(unaryOpInstruction.getOperand()));
+        code.append(loadElement(unaryOpInstruction.getOperands().get(0)));
         int counter = this.labelCounter ++;
-        code.append("ifeq FALSE_BRANCH_" + counter + "\n"); // ifeq -> pop the value on stack and checks equals 0, jump to branch if so
+        code.append("ifeq NOT_BRANCH_" + counter + "\n"); // ifeq -> pop the value on stack and checks equals 0, jump to branch if so
 
         code.append("iconst_0\n").append("goto ").append("END_IF_").append(counter).append("\n").
-                append("FALSE_BRANCH_" + counter).append(":\n").
+                append("NOT_BRANCH_" + counter).append(":\n").
                 append("iconst_1\n").append("END_IF_").append(counter).append(":\n");
         return code.toString();
     }
@@ -252,23 +246,27 @@ public class OllirToJasmin {
         StringBuilder code = new StringBuilder();
         if(binaryOpInstruction.getOperation().getOpType() == OperationType.ANDB){
             int counter = this.labelCounter ++;
-            String ifqeCondition = "ifeq FALSE_BRANCH_" + counter + "\n"; // ifeq -> pop the value on stack and checks equals 0, jump to branch if so
+            String ifqeCondition = "ifeq AND_BRANCH_" + counter + "\n"; // ifeq -> pop the value on stack and checks equals 0, jump to branch if so
             code.append(loadElement(binaryOpInstruction.getLeftOperand())).append(ifqeCondition);
             code.append(loadElement(binaryOpInstruction.getRightOperand())).append(ifqeCondition);
 
-            code.append("iconst_1\n").append("goto ").append("END_IF_").append(counter).append("\n").
-                    append("FALSE_BRANCH_" + counter).append(":\n").
+            code.append("iconst_1\n")
+                    .append("goto ").append("END_IF_").append(counter).append("\n").
+                    append("AND_BRANCH_" + counter).append(":\n").
                     append("iconst_0\n").append("END_IF_").append(counter).append(":\n");
             return code.toString();
         } else if (binaryOpInstruction.getOperation().getOpType() == OperationType.LTH) {
+
             int counter = this.labelCounter ++;
             code.append(loadElement(binaryOpInstruction.getLeftOperand()));
+
             code.append(loadElement(binaryOpInstruction.getRightOperand()));
-            code.append("if_icmpge IF_GREATER_EQ_JUMP_"+counter).append("\n")  //if_icmpge -> pop the 2 values on stack and checks if value1 >= value2, jump to branch if so
-                    .append("iconst_1\n")
-                    .append("goto END_IF_").append(counter).append("\n")
-                    .append("IF_GREATER_EQ_JUMP_"+counter).append(":\n")
+
+            code.append("if_icmplt LESS_THAN_JUMP_"+counter).append("\n")  //if_icmpge -> pop the 2 values on stack and checks if value1 >= value2, jump to branch if so
                     .append("iconst_0\n")
+                    .append("goto END_IF_").append(counter).append("\n")
+                    .append("LESS_THAN_JUMP_"+counter).append(":\n")
+                    .append("iconst_1\n")
                     .append("END_IF_").append(counter).append(":\n");
             return code.toString();
         }
@@ -288,9 +286,6 @@ public class OllirToJasmin {
                 break;
             case DIV:
                 code.append("idiv\n");
-                break;
-            case AND:
-                code.append("TODO:AND_NOT_IMPLEMENTED\n");
                 break;
             default:
                 throw new NotImplementedException(binaryOpInstruction.getOperation().getOpType());
@@ -314,6 +309,10 @@ public class OllirToJasmin {
 
         if(operand instanceof ArrayOperand){
             // left hand side is an array type
+            ArrayOperand arrayOperand = (ArrayOperand) operand;
+
+            code.append("aload").append(this.getVirtualRegister(arrayOperand.getName())).append("\n");
+            code.append(loadElement(arrayOperand.getIndexOperands().get(0)));
         }
 
 //        assignInstruction.getRhs().show();
@@ -345,6 +344,10 @@ public class OllirToJasmin {
                 return getCodeInvokeSpecial(callInstruction);
             case NEW:
                 return getCodeNewObject(callInstruction);
+            case arraylength:
+                code.append(this.loadElement(callInstruction.getFirstArg()));
+                code.append("arraylength\n");
+                return code.toString();
             default:
                 throw new NotImplementedException(callInstruction.getInvocationType());
         }
@@ -582,7 +585,7 @@ public class OllirToJasmin {
             StringBuilder code = new StringBuilder();
             ArrayOperand operand = (ArrayOperand) element;
 
-            code.append("aload ").append(getVirtualRegister(operand.getName())).append("\n");
+            code.append("aload").append(getVirtualRegister(operand.getName())).append("\n");
 
             code.append(loadElement(operand.getIndexOperands().get(0)));
 

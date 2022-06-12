@@ -535,6 +535,7 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
         return false;
     }
 
-
-
+    public int getTempVarCounter() {
+        return tempVarCounter++;
+    }
 }
