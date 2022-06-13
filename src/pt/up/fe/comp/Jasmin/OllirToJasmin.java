@@ -12,12 +12,20 @@ import java.util.stream.Collectors;
 
 public class OllirToJasmin {
     private final ClassUnit classUnit;
+
+    private int currstackLimit;
+    private int localLimit;
+
+    private int stackLimit;
     HashMap<String, Descriptor> varTable;
 
     private int labelCounter;
     public OllirToJasmin(ClassUnit classUnit){
         this.classUnit = classUnit;
         this.labelCounter = 0;
+        this.localLimit = 0;
+        this.stackLimit  = 0;
+        this.currstackLimit = 0;
         classUnit.buildVarTables();
     }
 
@@ -48,6 +56,8 @@ public class OllirToJasmin {
 
 
         for (var method: classUnit.getMethods()){
+            this.stackLimit = 0;
+            this.localLimit = 0;
             code.append(getCode(method));
         }
 
@@ -63,6 +73,7 @@ public class OllirToJasmin {
         var code = new StringBuilder();
 
         this.varTable = method.getVarTable();
+
 
 //        System.out.println("VarTable:" + method.getVarTable());
 
@@ -89,7 +100,11 @@ public class OllirToJasmin {
         }
 
         if(method.isStaticMethod()){
+
             code.append("static ");
+        }
+        else {
+            this.localLimit ++;
         }
 
         code.append(method.getMethodName()).append("(");
@@ -101,13 +116,22 @@ public class OllirToJasmin {
 //        System.out.println("METHOD PARAMS: " + methodParamTypes);
 
         code.append(methodParamTypes).append(")").append(getJasminType(method.getReturnType())).append("\n");
-        code.append(".limit stack 99\n");
-        code.append(".limit locals 99\n");
 
 
+        StringBuilder tempCode = new StringBuilder();
         for(var instruction: method.getInstructions()){
-            code.append(getInstructionCode(instruction, method));
+            tempCode.append(getInstructionCode(instruction, method));
+            if(instruction instanceof CallInstruction && ((CallInstruction)instruction).getReturnType().getTypeOfElement() != ElementType.VOID){
+                tempCode.append("pop\n");
+                this.decrementCurrentStackLimit();
+            }
         }
+
+        code.append(".limit stack " + this.stackLimit +"\n");
+        this.localLimit += method.getVarTable().size();
+        code.append(".limit locals "+ this.localLimit+"\n");
+
+        code.append(tempCode.toString());
 //        if(method.getMethodName().equals("main")){
 //            code.append("return\n");
 //
@@ -150,13 +174,11 @@ public class OllirToJasmin {
                 throw new NotImplementedException(instruction.getInstType());
         }
 
-//        return "";
     }
 
     private String getCode(UnaryOpInstruction unaryOpInstruction) {
         StringBuilder code = new StringBuilder();
 
-//        unaryOpInstruction.show();
 
         code.append(loadElement(unaryOpInstruction.getOperands().get(0)));
         int counter = this.labelCounter ++;
@@ -165,6 +187,8 @@ public class OllirToJasmin {
         code.append("iconst_0\n").append("goto ").append("END_IF_").append(counter).append("\n").
                 append("NOT_BRANCH_" + counter).append(":\n").
                 append("iconst_1\n").append("END_IF_").append(counter).append(":\n");
+
+        // ifeq consumes 1 from stack, NOT result is pushed to the stack, therefore no overall change
         return code.toString();
     }
 
@@ -176,10 +200,10 @@ public class OllirToJasmin {
     }
 
     private String getCode(CondBranchInstruction condBranchInstruction) {
-//        condBranchInstruction.show();
         StringBuilder code = new StringBuilder();
         code.append(this.loadElement(condBranchInstruction.getOperands().get(0)))
                 .append("ifne " + condBranchInstruction.getLabel()).append("\n");
+        this.decrementCurrentStackLimit(); // ifne consumes 1 from stack
         return code.toString();
 
     }
@@ -202,6 +226,7 @@ public class OllirToJasmin {
 
         code.append(getJasminType(secondOperand.getType()) + "\n");
 
+        this.decrementCurrentStackLimit(2); //putfield will consume 2 values from stack
         return code.toString();
     }
     public String getCode(GetFieldInstruction getFieldInstruction){
@@ -227,14 +252,19 @@ public class OllirToJasmin {
         if(!returnInstruction.hasReturnValue()){
             return "return\n";
         }
+        String code = "";
 
         switch (returnInstruction.getOperand().getType().getTypeOfElement()){
             case VOID:
                 return "return\n";
             case INT32, BOOLEAN:
-                return loadElement(returnInstruction.getOperand()) + "ireturn\n";
+                code = loadElement(returnInstruction.getOperand()) + "ireturn\n";
+                this.decrementCurrentStackLimit();
+                return code;
             case ARRAYREF, OBJECTREF:
-                return loadElement(returnInstruction.getOperand()) + "areturn\n";
+                code = loadElement(returnInstruction.getOperand()) + "areturn\n";
+                this.decrementCurrentStackLimit();
+                return code;
             default:
                 throw new NotImplementedException(returnInstruction.getOperand().getType().getTypeOfElement());
         }
@@ -247,13 +277,21 @@ public class OllirToJasmin {
         if(binaryOpInstruction.getOperation().getOpType() == OperationType.ANDB){
             int counter = this.labelCounter ++;
             String ifqeCondition = "ifeq AND_BRANCH_" + counter + "\n"; // ifeq -> pop the value on stack and checks equals 0, jump to branch if so
-            code.append(loadElement(binaryOpInstruction.getLeftOperand())).append(ifqeCondition);
-            code.append(loadElement(binaryOpInstruction.getRightOperand())).append(ifqeCondition);
+
+            code.append(loadElement(binaryOpInstruction.getLeftOperand()));
+            code.append(ifqeCondition);
+            this.decrementCurrentStackLimit(); // ifeq consumes 1 value on stack
+
+            code.append(loadElement(binaryOpInstruction.getRightOperand()));
+            code.append(ifqeCondition);
+            this.decrementCurrentStackLimit();
 
             code.append("iconst_1\n")
                     .append("goto ").append("END_IF_").append(counter).append("\n").
                     append("AND_BRANCH_" + counter).append(":\n").
                     append("iconst_0\n").append("END_IF_").append(counter).append(":\n");
+            this.incrementCurrentStackLimit();  // The result of AND is pushed to the stack
+
             return code.toString();
         } else if (binaryOpInstruction.getOperation().getOpType() == OperationType.LTH) {
 
@@ -268,6 +306,8 @@ public class OllirToJasmin {
                     .append("LESS_THAN_JUMP_"+counter).append(":\n")
                     .append("iconst_1\n")
                     .append("END_IF_").append(counter).append(":\n");
+            this.decrementCurrentStackLimit();  // if_icmplt pops 2, and true/false is loaded to the stack
+                                                // note: loadElement is done separately
             return code.toString();
         }
         code.append(loadElement(binaryOpInstruction.getLeftOperand()));
@@ -290,7 +330,7 @@ public class OllirToJasmin {
             default:
                 throw new NotImplementedException(binaryOpInstruction.getOperation().getOpType());
         }
-
+        this.decrementCurrentStackLimit(); // 2 were pop from stack due to binop, the result is pushed into the stack
         return code.toString();
     }
 
@@ -312,6 +352,7 @@ public class OllirToJasmin {
             ArrayOperand arrayOperand = (ArrayOperand) operand;
 
             code.append("aload").append(this.getVirtualRegister(arrayOperand.getName())).append("\n");
+            this.incrementCurrentStackLimit();
             code.append(loadElement(arrayOperand.getIndexOperands().get(0)));
         }
 
@@ -367,7 +408,7 @@ public class OllirToJasmin {
                 String objName = getFullyQualifiedName( ((Operand)element).getName());
                 code.append("new ").append(objName).append("\n");
                 code.append("dup\n");
-//                System.out.println(code);
+                this.incrementCurrentStackLimit(2); // new will load 1 value to stack, and dup will duplicate (hence load 1 to stack)
                 break;
             case ARRAYREF:
                 code.append(loadElement(callInstruction.getListOfOperands().get(0)));
@@ -402,12 +443,15 @@ public class OllirToJasmin {
 
         for(var operand: callInstruction.getListOfOperands()){
             code.append(getArgumentCode(operand));
+            this.decrementCurrentStackLimit();
         }
-
+        this.decrementCurrentStackLimit(); // Since invoke virtual is instanciated, objectRef is also consumed from stack during call
         code.append(")");
 
         code.append(getJasminType(callInstruction.getReturnType()));
-
+        if(callInstruction.getReturnType().getTypeOfElement() != ElementType.VOID){
+            this.incrementCurrentStackLimit();
+        }
         code.append("\n");
 
 
@@ -421,8 +465,10 @@ public class OllirToJasmin {
 
         code.append(loadElement(callInstruction.getFirstArg()));
 
+
         for(var operand: callInstruction.getListOfOperands()){
             code.append(loadElement(operand));
+
         }
 
         code.append("invokestatic ");
@@ -438,12 +484,15 @@ public class OllirToJasmin {
 
         for(var operand: callInstruction.getListOfOperands()){
             code.append(getArgumentCode(operand));
+            this.decrementCurrentStackLimit();
         }
 
         code.append(")");
 
         code.append(getJasminType(callInstruction.getReturnType()));
-
+        if(callInstruction.getReturnType().getTypeOfElement() != ElementType.VOID){
+            this.incrementCurrentStackLimit();
+        }
         code.append("\n");
 
 
@@ -472,12 +521,16 @@ public class OllirToJasmin {
 
         for(var operand: callInstruction.getListOfOperands()){
             code.append(getArgumentCode(operand));
+            this.decrementCurrentStackLimit();
         }
+        this.decrementCurrentStackLimit();
 
         code.append(")");
 
         code.append(getJasminType(callInstruction.getReturnType()));
-
+        if(callInstruction.getReturnType().getTypeOfElement() != ElementType.VOID){
+            this.incrementCurrentStackLimit();
+        }
         code.append("\n");
 
         if(!((ClassType)callInstruction.getFirstArg().getType()).getName().equals("this")){
@@ -510,7 +563,7 @@ public class OllirToJasmin {
 
 
     public String getJasminType(ElementType type) {
-        //TODO: adicionando os outros casos que faltam a medida que for testando
+
 
         switch (type){
             case STRING:
@@ -574,35 +627,34 @@ public class OllirToJasmin {
     }
 
     public String loadElement(Element element){
-
-
-//        System.out.println("Inside NOPER: ");
-//        instruction.show();
-
-
-//        Element singleOperandElement = instruction.getSingleOperand();
         if(element instanceof ArrayOperand){
             StringBuilder code = new StringBuilder();
             ArrayOperand operand = (ArrayOperand) element;
 
             code.append("aload").append(getVirtualRegister(operand.getName())).append("\n");
+            this.incrementCurrentStackLimit();
 
             code.append(loadElement(operand.getIndexOperands().get(0)));
 
+            this.decrementCurrentStackLimit();
             return code + "iaload\n";
         }
         if(element.isLiteral()){
             String literalString = ((LiteralElement) element).getLiteral();
+            this.incrementCurrentStackLimit();
             return loadIntToStack(literalString);
         }
         if(element instanceof Operand){
             Operand operand = (Operand) element;
             switch(operand.getType().getTypeOfElement()){
                 case THIS:
+                    this.incrementCurrentStackLimit();
                     return "aload_0\n";
                 case INT32, BOOLEAN:
+                    this.incrementCurrentStackLimit();
                     return "iload"+ getVirtualRegister(operand.getName()) + "\n";
                 case OBJECTREF, ARRAYREF:
+                    this.incrementCurrentStackLimit();
                     return "aload" + getVirtualRegister(operand.getName()) + "\n";
                 case CLASS:
                     return "";
@@ -616,16 +668,36 @@ public class OllirToJasmin {
 
     private String storeValueIntoVariable(Operand operand){
         if(operand instanceof ArrayOperand){
+            this.decrementCurrentStackLimit(3);
             return "iastore\n";
         }
 
         switch(operand.getType().getTypeOfElement()){
             case INT32, BOOLEAN:
+                this.decrementCurrentStackLimit();
                 return "istore" + getVirtualRegister(operand.getName()) + "\n";
             case OBJECTREF, ARRAYREF:
+                this.decrementCurrentStackLimit();
                 return "astore" + getVirtualRegister(operand.getName())+ "\n";
             default:
                 throw new NotImplementedException(operand.getType().getTypeOfElement());
         }
+    }
+
+    public void incrementCurrentStackLimit(int n) {
+        this.currstackLimit += n;
+        if(this.currstackLimit > this.stackLimit){
+            this.stackLimit = this.currstackLimit;
+        }
+    }
+    public void incrementCurrentStackLimit() {
+        this.incrementCurrentStackLimit(1);
+    }
+
+    public void decrementCurrentStackLimit(int n) {
+        this.currstackLimit -= n;
+    }
+    public void decrementCurrentStackLimit() {
+        this.decrementCurrentStackLimit(1);
     }
 }
