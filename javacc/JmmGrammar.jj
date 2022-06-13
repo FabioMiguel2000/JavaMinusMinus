@@ -280,7 +280,8 @@ Literals #void:
 	(<TRUE> {jjtThis.put("type", "boolean"); jjtThis.put("value", lastConsumedToken.getImage()); }) #Literal|
 	(<FALSE> {jjtThis.put("type", "boolean"); jjtThis.put("value", lastConsumedToken.getImage()); }) #Literal|
 	(Id) |
-	(<THIS> {jjtThis.put("type", "class"); jjtThis.put("value", lastConsumedToken.getImage()); }) #Literal 
+	(<THIS> {jjtThis.put("name", "this");}) #Id
+	/*(<THIS> {jjtThis.put("type", "class"); jjtThis.put("value", lastConsumedToken.getImage()); }) #Literal */
 ;
 
 ObjectCreationExpression:

@@ -41,8 +41,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         addVisit(AstNode.WHILE_STATEMENT, this::whileVisit);
         addVisit(AstNode.RETURN_DECLARATION, this::returnVisit);
 
-//        addVisit(AstNode.);
-
     }
 
     public String getCode() {
@@ -244,15 +242,24 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
 
     public Integer literalVisit(JmmNode literalNode, Integer dummy){
-        if(literalNode.get("value").equals("true")){
-            code.append("1");
+        switch(literalNode.get("type")){
+            case "boolean":
+                if(literalNode.get("value").equals("true")){
+                    code.append("1");
+                }
+                else{
+                    code.append("0");
+                }
+                break;
+
+            case "int":
+                code.append(literalNode.get("value"));
+                break;
+
+            default:
+                throw new NotImplementedException(literalNode);
         }
-        else if(literalNode.get("value").equals("false")){
-            code.append("0");
-        }
-        else{
-            code.append(literalNode.get("value"));
-        }
+
         code.append(".");
         code.append(OllirUtils.getOllirType(literalNode.get("type")));
         return 0;
@@ -278,6 +285,9 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
 
     public String getInvokeCode(JmmNode callExpr){
+        if(callExpr.getJmmChild(0).get("name").equals("this")){
+            return "invokevirtual";
+        }
         var parentMethod = AstUtils.getPreviousNode(callExpr, AstNode.METHOD_DECLARATION);
 
         var localVars = symbolTable.getLocalVariables(parentMethod.get("name"));
@@ -328,27 +338,28 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
 
     public Integer callExprVisit(JmmNode callExpr, Integer dummy){
-        // todo see details on video 02:43:00
-        // ver o tipo da expressao = objeto -> chamada de instancia
-        // tipo = classe -> chamada estatica
+        String invokeType;
 
-        var invokeType = getInvokeCode(callExpr);
+        invokeType = getInvokeCode(callExpr);
 
-//        System.out.println(callExpr.getJmmChild(2));
+
         visit(callExpr.getJmmChild(2));
 
         code.append(invokeType).append("(");
 
         visit(callExpr.getJmmChild(0));
-        if(invokeType.equals("invokevirtual")){
-            var type = getVariableStringByName(callExpr.getJmmChild(0).get("name"), AstUtils.getPreviousNode(callExpr.getJmmChild(0), AstNode.METHOD_DECLARATION)).get(1);
+        if(invokeType.equals("invokevirtual") && !callExpr.getJmmChild(0).get("name").equals("this")){
+            String type;
+            type = getVariableStringByName(callExpr.getJmmChild(0).get("name"), AstUtils.getPreviousNode(callExpr.getJmmChild(0), AstNode.METHOD_DECLARATION)).get(1);
+
             code.append(type);
         }
+
 
         code.append(", \"");
         visit(callExpr.getJmmChild(1));
         code.append("\"");
-//        visit(callExpr.getJmmChild(2));
+
         code.append(this.temporaryStorage);
         code.append(")");
 
@@ -358,6 +369,10 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
             var type = getVariableStringByName(parentNode.getJmmChild(0).get("name"), parentNode).get(1);
             code.append(type);
 
+        }
+        else if(callExpr.getJmmChild(0).get("name").equals("this")){
+            String type = OllirUtils.getCode(symbolTable.getReturnType(callExpr.getJmmChild(1).get("name")));
+            code.append("." + type);
         }
         else{
             code.append(".V");

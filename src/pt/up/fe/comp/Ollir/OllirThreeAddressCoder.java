@@ -43,9 +43,13 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
     }
 
     public String getInvokeCode(JmmNode callExpr){
+        if(callExpr.getJmmChild(0).get("name").equals("this")){
+            return "invokevirtual";
+        }
         var parentMethod = AstUtils.getPreviousNode(callExpr, AstNode.METHOD_DECLARATION);
 
         var localVars = symbolTable.getLocalVariables(parentMethod.get("name"));
+
 
         for (var localVar: localVars) {
             if(localVar.getName().equals(callExpr.getJmmChild(0).get("name"))){
@@ -124,6 +128,7 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
         var invokeType = getInvokeCode(callExprNode);
 
+
         invokeCode += invokeType + "(";
 
         var leftChild = visit(callExprNode.getJmmChild(0));
@@ -133,7 +138,7 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
         invokeCode += parseName(leftChild.get(1).toString());
 
-        if(invokeType.equals("invokevirtual")){
+        if(invokeType.equals("invokevirtual")&& !callExprNode.getJmmChild(0).get("name").equals("this")){
             var type = getVariableStringByName(callExprNode.getJmmChild(0).get("name"), callExprNode).get(1);
             invokeCode += type;
         }
@@ -154,10 +159,9 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
                 // check if contained inside an array access, if so type will be int
                 type = ".i32";
             }
-//            if(callExprNode.getJmmParent().getKind().equals(AstNode.ARRAY_ACCESS_EXPRESSION.toString())){
-//                // check if contained inside an array access, if so type will be int
-//                type = ".i32";
-//            }
+            else if(callExprNode.getJmmChild(0).get("name").equals("this")){
+                type = "." +OllirUtils.getCode(symbolTable.getReturnType(callExprNode.getJmmChild(1).get("name")));
+            }
             else{
                 type = ".V";
 
