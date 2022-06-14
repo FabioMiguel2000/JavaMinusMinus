@@ -2,10 +2,10 @@
 
 ## GROUP 2C: 
 
-- NAME1: Bruno Pinheiro , NR1: 201705562, GRADE1: <0 to 20 value>, CONTRIBUTION1: <0 to 100 %>
-- NAME2: Fabio Huang, NR2: 201806829, GRADE2: <0 to 20 value>, CONTRIBUTION2: <0 to 100 %>
-- NAME3: Gabriel Alves, NR2: 201709532, GRADE2: <0 to 20 value>, CONTRIBUTION2: <0 to 100 %>
-- NAME4: Ivo Ribeiro, NR2: 201307718, GRADE2: <0 to 20 value>, CONTRIBUTION2: <0 to 100 %>
+- NAME1: Bruno Pinheiro , NR1: 201705562, GRADE1:20, CONTRIBUTION1: 20%
+- NAME2: Fabio Huang, NR2: 201806829, GRADE2: 20, CONTRIBUTION2: 30%
+- NAME3: Gabriel Alves, NR2: 201709532, GRADE3: 20, CONTRIBUTION3: 25%
+- NAME4: Ivo Ribeiro, NR2: 201307718, GRADE4: 20, CONTRIBUTION4: 25%
 
 
  
@@ -24,10 +24,8 @@ This project aims to apply the knowledge and principles learnt during the course
 3. High-level and low-level optimization: high-level optimizations are applied to the AST, OLLIR is generated, and low-level optimizations are applied in OLLIR.
 4. Code generation: Jasmin code is generated from the input OLLIR.
  
-
-
 ## Semantic Analysis
-**SEMANTIC ANALYSIS: (Refer the semantic rules implemented by your tool.)
+
 
 ### Symbol Table
 
@@ -83,7 +81,7 @@ A Java-- Parser was developed to perform membership checking, to see if the code
 There is nothing too special about our project...
 
 # Cons
-- We could implement some code optimizations
+- Did not implement optimizations
 - Generation of OLLIR code could be improved
 - Jasmin could be improved
 - Semantic analysis is not yet complete
