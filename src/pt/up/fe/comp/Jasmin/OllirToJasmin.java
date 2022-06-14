@@ -36,7 +36,6 @@ public class OllirToJasmin {
 
         code.append(".class public ").append(classUnit.getClassName()).append("\n");
 
-//        System.out.println("current code = " + code);
         String superClassQualifiedName;
         code.append(".super ");
         if(classUnit.getSuperClass() == null){
@@ -64,18 +63,12 @@ public class OllirToJasmin {
 
         return code.toString();
     }
-    public String getCode(Field field){
-
-        return "";
-    }
 
     public String getCode(Method method){
         var code = new StringBuilder();
 
         this.varTable = method.getVarTable();
 
-
-//        System.out.println("VarTable:" + method.getVarTable());
 
         if(method.isConstructMethod()){
             return "";
@@ -113,8 +106,6 @@ public class OllirToJasmin {
                 .map(element -> getJasminType(element.getType()))
                 .collect(Collectors.joining());
 
-//        System.out.println("METHOD PARAMS: " + methodParamTypes);
-
         code.append(methodParamTypes).append(")").append(getJasminType(method.getReturnType())).append("\n");
 
 
@@ -131,11 +122,8 @@ public class OllirToJasmin {
         this.localLimit += method.getVarTable().size();
         code.append(".limit locals "+ this.localLimit+"\n");
 
-        code.append(tempCode.toString());
-//        if(method.getMethodName().equals("main")){
-//            code.append("return\n");
-//
-//        }
+        code.append(tempCode);
+
         code.append(".end method\n\n");
         return code.toString();
 
@@ -356,8 +344,6 @@ public class OllirToJasmin {
             code.append(loadElement(arrayOperand.getIndexOperands().get(0)));
         }
 
-//        assignInstruction.getRhs().show();
-
         code.append(getInstructionCode(assignInstruction.getRhs(), parentMethod)); // append the right hand side instruction code first
 
 
@@ -369,8 +355,6 @@ public class OllirToJasmin {
         return code.toString();
     }
 
-
-//
 
     public String getCode(CallInstruction callInstruction){
 
@@ -399,10 +383,8 @@ public class OllirToJasmin {
 
     private String getCodeNewObject(CallInstruction callInstruction){
         var code = new StringBuilder();
-//        callInstruction.show();
         Element element = callInstruction.getFirstArg();
 
-//        element.show();
         switch (element.getType().getTypeOfElement()){
             case OBJECTREF:
                 String objName = getFullyQualifiedName( ((Operand)element).getName());

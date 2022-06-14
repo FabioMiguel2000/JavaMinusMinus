@@ -281,7 +281,6 @@ Literals #void:
 	(<FALSE> {jjtThis.put("type", "boolean"); jjtThis.put("value", lastConsumedToken.getImage()); }) #Literal|
 	(Id) |
 	(<THIS> {jjtThis.put("name", "this");}) #Id
-	/*(<THIS> {jjtThis.put("type", "class"); jjtThis.put("value", lastConsumedToken.getImage()); }) #Literal */
 ;
 
 ObjectCreationExpression:

@@ -18,7 +18,6 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
     private int tempVarCounter;
     private int countVisit;
-    private boolean complete;
     private Stack<String> operatorStack;
     private final SymbolTable symbolTable;
 
@@ -26,7 +25,6 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
         this.symbolTable = symbolTable;
         countVisit = 0;
         tempVarCounter = 0;
-        complete = false;
         operatorStack = new Stack<String>();
 
 
@@ -171,8 +169,6 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
             type = getVariableStringByName(assignNode.getJmmChild(0).get("name"), assignNode).get(1);
         }
 
-
-
         invokeCode += type;
         String address = "temp_" + tempVarCounter++ + type;
 
@@ -252,7 +248,7 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
 
         var address = leftChild.get(1) ;
-//        String assignType = leftChild.get(1).toString().split("\\.")[1];
+
         String assignType;
         if(assignmentNode.getJmmChild(0).getKind().equals(AstNode.ID.toString())){
             assignType = getVariableStringByName(assignmentNode.getJmmChild(0).get("name"), assignmentNode.getJmmChild(0)).get(1).toString();
@@ -262,11 +258,6 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
             assignType = ".i32";
         }
 
-//        if(complete){
-//            code = leftChild.get(1) + " :=."+ assignType + " " + rightChild.get(0).toString();
-//
-//        }
-//        else{
         for(var field: symbolTable.getFields()){
             if(field.getName().equals(assignmentNode.getJmmChild(0).get("name"))){
                 // Significa que e' um field
@@ -282,8 +273,6 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
         code = leftChild.get(0).toString() + rightChild.get(0).toString() + address.toString() + " :=" + assignType + " " + rightChild.get(1) + ";\n";
 
-//        }
-
         result.add(code);
         result.add(address);
 
@@ -294,13 +283,8 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
     public ArrayList notExpressionVisit(JmmNode notExpressionNode, ArrayList children){
         var result = new ArrayList<>();
 
-
-
-
-
         var child = visit(notExpressionNode.getJmmChild(0));
 
-//        String address = "!.bool " + child.get(1);
         String address = "temp_" + tempVarCounter++ + ".bool";
         String code = child.get(0).toString()
                 + address + " :=.bool !.bool "  +  child.get(1) +";\n";
@@ -316,7 +300,6 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
         String address = "new(";
 
-
         if(objectCreationNode.getJmmChild(0).getKind().equals(AstNode.ID.toString())){
             var objectName = objectCreationNode.getJmmChild(0).get("name");
             address += objectName + ")." + objectName + ";\n";
@@ -329,13 +312,6 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
             address += arrayDeclChild.get(1).toString() + ").array.i32";
 
         }
-
-
-//        var child = visit(objectCreationNode.getJmmChild(0));
-//
-//
-//        var objectName = child.get(1).toString();
-//        address += objectName + ")." + objectName;
 
         String code = "";
 
@@ -379,13 +355,10 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
                 opString = "<.bool";
                 opType = ".bool";
                 break;
-//            case "!":
 
             default:
                 throw new NotImplementedException(this);
         }
-
-
 
         String address;
         String code;
@@ -472,8 +445,6 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
 
         address += "temp_" + tempVarCounter++ + ".i32";
 
-
-
         code += address + " :=.i32 arraylength(";
 
         var child = getVariableStringByName(lengthPropertyNode.getJmmChild(0).get("name"), lengthPropertyNode.getJmmChild(0));
@@ -481,8 +452,6 @@ public class OllirThreeAddressCoder extends AJmmVisitor<ArrayList, ArrayList> {
         code += child.get(0) + child.get(1);
 
         code += ").i32;\n";
-
-//        arraylength($1.A.array.i32).i32;
 
         result.add(code);
         result.add(address);

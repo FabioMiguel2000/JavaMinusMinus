@@ -22,26 +22,7 @@ public class JmmOptimizer implements JmmOptimization {
 
         var ollirCode = ollirGenerator.getCode();
 
-
-
-//        ollirCode = "import ioPlus;\n" +
-//                "import BoardBase;\n" +
-//                "import java.io.File;\n" +
-//                "public HelloWorld extends BoardBase {\n" +
-//                ".method public static main(args.array.String).V {\n" +
-//                "invokestatic(ioPlus, \"print\").V;\n" +
-//                "b.Method :=.Method new(Method).Method;\n" +
-//                "b.Method :=.Method invokestatic(ioPlus, \"print\").Method;\n" +
-//                "temp_0.i32 :=.i32 invokevirtual(b.Method, \"add\", 1.i32, 2.i32).i32;\n"+
-//                "temp_1.i32 :=.i32 temp_0.i32 +.i32 1.i32;\n" +
-//                "a.i32 :=.i32 temp_0.i32;\n" +
-//                "ret.V;\n" +
-//                "}\n" +
-//                " }";
-
         System.out.println("OLLIR CODE: \n" + ollirCode);
-
-
 
         return new OllirResult(semanticsResult, ollirCode, Collections.emptyList());
     }

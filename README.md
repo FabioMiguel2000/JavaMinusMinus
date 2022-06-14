@@ -29,24 +29,65 @@ This project aims to apply the knowledge and principles learnt during the course
 ## Semantic Analysis
 **SEMANTIC ANALYSIS: (Refer the semantic rules implemented by your tool.)
 
+### Symbol Table
+
+- [X] Has information about imports and the declared class
+- [X] Has information about extends, fields and methods
+- [X] Has information about the parameters and local variables of each method
+
+### Type Verification
+
+- [ ] Verify if variable names used in the code have a corresponding declaration, either as a local variable, a method parameter or a field of the class (if applicable).
+- [X] Operands of an operation must types compatible with the operation (e.g. int + boolean is an error because + expects two integers.)
+- [X] Array cannot be used in arithmetic operations (e.g. array1 + array2 is an error)
+- [X] Array access is done over an array
+- [ ] Array access index is an expression of type integer
+- [X] Type of the assignee must be compatible with the assigned (an_int = a_bool is an error)
+- [ ] Expressions in conditions must return a boolean (if(2+3) is an error)
+
+### Function Verification
+
+- [ ] When calling methods of the class declared in the code, verify if the types of arguments of the call are compatible with the types in the method declaration
+- [ ] In case the method does not exist, verify if the class extends another class and report an error if it does not. Assume the method exists in one of the super classes, and that is being correctly called
+- [ ] When calling methods that belong to other classes other than the class declared in the code, verify if the classes are being imported
  
 
 ## Code Generation
-**CODE GENERATION: (describe how the code generation of your tool works and identify the possible problems your tool has regarding code generation.)
 
-A parser was developed to perform membership test, by checking if the code belongs to Java-- language, this is achieved by tokenizing the source code and therefore producing tokens which will be checked using CFG, by the end of this phase, a Abstract Syntax Tree will be generated annotating the nodes with some extra information. This AST tree will be then used to create a Symbol Table, where the Semantic Analysis will be carried out. After that OLLIR code is generated and finally Jasmim code is produced.
+A Java-- Parser was developed to perform membership checking, to see if the code belongs to the language. This is achieved by tokenizing the source code and producing tokens that will be checked using CFG. By the end of the parser phase, an Abstract Syntax Tree (AST) will be generated annotating the nodes with some extra information. The AST will be then used to create a Symbol Table, which will contain the information of the class and its methods (return type, parameters, local variables) and fields. This Symbol Table will be helpful during the Semantic Analysis Phase (where semantic errors will be checked) and during the Optimization Phase where OLLIR code is produced and code is optimized. Finally, using the OLLIR code generated, Jasmin is used to generating JVM Bytecodes.
 
+### OLLIR 
+- [x] Basic structure of code (imports, class and fields)
+- [x] Invocation of functions (invokestatic and invokevirtual)
+- [x] Arithmetic expression (+, -, *, /)
+- [x] Boolean operations (!, <)
+- [x] Conditional instructions (if-else)
+- [x] Loops (while)
+- [x] Arrays
 
+### JASMIN 
+- [x] Basic structure of code (imports, class and fields)
+- [x] Invocation of functions (invokestatic, invokevirtual and invokespecial)
+- [x] Arithmetic expression (+, -, *, /)
+- [x] Boolean operations (!, <)
+- [x] Control flow (if-else, while)
+- [x] Arrays
+- [x] Limit stacks and locals
 
- 
+### Optimizations
+- [ ] Constant folding
+- [ ] Optimized JVM instructions
+- [ ] Simple dead code elimination (ifs/whiles with a constant condition)
 
 # Pros
-Nothing
-
- 
+There is nothing too special about our project...
 
 # Cons
-Everything
+- We could implement some code optimizations
+- Generation of OLLIR code could be improved
+- Jasmin could be improved
+- Semantic analysis is not yet complete
+
 
 For this project, you need to install [Java](https://jdk.java.net/), [Gradle](https://gradle.org/install/), and [Git](https://git-scm.com/downloads/) (and optionally, a [Git GUI client](https://git-scm.com/downloads/guis), such as TortoiseGit or GitHub Desktop). Please check the [compatibility matrix](https://docs.gradle.org/current/userguide/compatibility.html) for Java and Gradle versions.
 

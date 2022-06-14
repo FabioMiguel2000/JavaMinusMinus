@@ -91,8 +91,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
         code.append(methodSignature).append("(");
 
-//        code.append("main(");
-
         var params = symbolTable.getParameters(methodSignature);
 
         var paramCode = params.stream()
@@ -228,11 +226,11 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         var ifScope = ifStmt.getJmmChild(1); // if(){ THIS PART }
 
         code.append(") goto else_" + localIfCounter +";\n");
-//        visit(ifScope);
+
         visit(elseStmt.getJmmChild(0));
         code.append("goto endif_" +localIfCounter + ";\n");
         code.append("else_"+localIfCounter+":\n");
-//        visit(elseStmt.getJmmChild(0));
+
         visit(ifScope);
         code.append("endif_"+localIfCounter +":\n");
 
@@ -275,7 +273,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
                 type += "array.";
             }
             type += OllirUtils.getOllirType(varDeclNode.getJmmChild(0).get("name")) + ";\n";
-//            var isArray = varDeclNode.getJmmChild(0).get("")
+
             code.append(type);
         }
 
@@ -446,22 +444,10 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         StringBuilder tempCode = new StringBuilder();
         this.temporaryStorage = "";
         for(var child: arguments.getChildren()){
-//            code.append(", ");
-//            if(child.getKind().equals(AstNode.ID.toString())){
-//                var childInfo = getVariableStringByName(child.get("name"), child);
-//                code.append(childInfo.get(0)).append(childInfo.get(1));
-//            }
-//            else{
-//                visit(child);
-//            }
-
-
             var argCode = coder.visit(child);
 
             code.append(argCode.get(0));
             this.temporaryStorage += ", " +argCode.get(1);
-//            tempCode.append(", ");
-//            tempCode.append(argCode.get(1));
 
         }
 

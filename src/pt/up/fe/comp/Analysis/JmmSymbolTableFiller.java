@@ -26,7 +26,6 @@ public class JmmSymbolTableFiller extends PreorderJmmVisitor<JmmSymbolTableBuild
         addVisit(AstNode.IMPORT_DECLARATION, this::importDeclVisit); //Every time IMPORT_DECL is seen it will call the `this::importDeclVisit` method
         addVisit(AstNode.CLASS_DECLARATION, this::classDeclVisit); //Every time CLASS_DECL is seen it will call the `this::ClassDeclVisit` method
         addVisit(AstNode.METHOD_DECLARATION, this::methodDeclVisit); //Every time METHOD_DECL is seen it will call the `this::methodDeclVisit` method
-//        addVisit(AstNode.)
     }
 
     public List<Report> getReports() {
@@ -37,8 +36,6 @@ public class JmmSymbolTableFiller extends PreorderJmmVisitor<JmmSymbolTableBuild
 
         var importString = importDecl.getChildren().stream()
                 .map(id->id.get("name")).collect(Collectors.joining("."));    // for imports like import ioPlus.somthin.s;
-
-//        System.out.println("ADDING IMPORT: " + importString);
 
         symbolTable.addImport(importString);
 
@@ -93,11 +90,6 @@ public class JmmSymbolTableFiller extends PreorderJmmVisitor<JmmSymbolTableBuild
                 .collect(Collectors.toList());
 
         symbolTable.addLocalVariables(methodName, localVariables);
-
-//        List<Symbol> localVariablesSymbol;
-//        for(var field : fields){
-//            symbolTable.addLocalVariables(new Symbol(new Type(field.getJmmChild(0).get("name"), field.getJmmChild(0).get("isArray").equals("true")), field.getJmmChild(1).get("name")));
-//        }
 
 
         return 0;

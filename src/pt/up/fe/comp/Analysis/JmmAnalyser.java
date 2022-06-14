@@ -37,9 +37,9 @@ public class JmmAnalyser implements JmmAnalysis {
                 new ReturnMatchesType(symbolTable, parserResult.getRootNode())
                 );
 
-//        for(var analyser : analysers){
-//            reports.addAll(analyser.getReports());
-//        }
+        for(var analyser : analysers){
+            reports.addAll(analyser.getReports());
+        }
 
 
 
