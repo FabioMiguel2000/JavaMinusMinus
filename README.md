@@ -73,6 +73,7 @@ A Java-- Parser was developed to perform membership checking, to see if the code
 - [x] Limit stacks and locals
 
 ### Optimizations
+- [x] Re-use temporary variables
 - [ ] Constant folding
 - [ ] Optimized JVM instructions
 - [ ] Simple dead code elimination (ifs/whiles with a constant condition)
